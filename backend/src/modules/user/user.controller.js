@@ -1,5 +1,14 @@
+import { registerUser } from "./user.service.js";
+
 const register = async (req, res) => {
-  res.json({ message: "Register route working!" });
+  try {
+    const user = await registerUser(req.body);
+    res
+      .status(201)
+      .json({ message: "User registered successfully", userId: user._id });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
 const login = async (req, res) => {
