@@ -1,4 +1,4 @@
-import { registerUser } from "./user.service.js";
+import { loginUser, registerUser } from "./user.service.js";
 
 const register = async (req, res) => {
   try {
@@ -12,7 +12,22 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  res.json({ message: "Login route working!" });
+  try {
+    const { email, password } = req.body;
+
+    const { userId, token } = await loginUser({ email, password });
+
+    res.cookie("tf_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: "Login successful" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
 export { register, login };

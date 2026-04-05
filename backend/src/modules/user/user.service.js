@@ -1,4 +1,5 @@
-import { hashPassword } from "../../utils/hashPassword.js";
+import { generateToken } from "../../utils/generateToken.js";
+import { comparePassword, hashPassword } from "../../utils/hashPassword.js";
 import User from "./user.model.js";
 
 const registerUser = async ({ name, email, password }) => {
@@ -19,6 +20,22 @@ const registerUser = async ({ name, email, password }) => {
   return user;
 };
 
-const loginUser = async (data) => {};
+const loginUser = async ({ email, password }) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("Invalid credentials");
+  }
+
+  const isMatch = await comparePassword(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = generateToken({ userId: user._id });
+
+  return { userId: user._id, token };
+};
 
 export { registerUser, loginUser };
