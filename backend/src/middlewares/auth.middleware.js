@@ -6,7 +6,9 @@ export const protect = async (req, res, next) => {
     const token = req.cookies.tf_token;
 
     if (!token) {
-      return res.status(401).json({ message: "Not authorized" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authorized" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -14,13 +16,17 @@ export const protect = async (req, res, next) => {
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      return res.status(401).json({ message: "User not found" });
+      return res
+        .status(401)
+        .json({ success: false, message: "User not found" });
     }
 
     req.user = user;
 
     next();
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };

@@ -5,9 +5,13 @@ const register = async (req, res) => {
     const user = await registerUser(req.body);
     res
       .status(201)
-      .json({ message: "User registered successfully", userId: user._id });
+      .json({
+        success: true,
+        message: "User registered successfully",
+        userId: user._id,
+      });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -24,9 +28,9 @@ const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ message: "Login successful" });
+    res.json({ success: true, message: "Login successful" });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 

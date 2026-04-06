@@ -4,11 +4,13 @@ import { getUserOrganizatoions, switchOrg } from "./membership.service.js";
 export const getMyOrganizations = async (req, res) => {
   try {
     const org = await getUserOrganizatoions(req.user._id);
-    res.json({
+    res.status(200).json({
+      success: true,
       organization: org,
+      message: "Organizations retrieved successfully",
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
