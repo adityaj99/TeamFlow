@@ -6,6 +6,8 @@ const app = express();
 import userRoutes from "./modules/user/user.routes.js";
 import orgRoutes from "./modules/organization/org.routes.js";
 import membershipRoutes from "./modules/membership/membership.routes.js";
+import inviteRoutes from "./modules/invite/invite.routes.js";
+
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
 import { allowRoles } from "./middlewares/rbac.middleware.js";
@@ -50,5 +52,6 @@ app.get(
 app.use("/api/auth", userRoutes);
 app.use("/api/org", orgRoutes);
 app.use("/api/membership", membershipRoutes);
+app.use("/api/invite", inviteRoutes);
 
 export default app;
