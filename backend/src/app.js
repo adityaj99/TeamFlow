@@ -8,6 +8,7 @@ import orgRoutes from "./modules/organization/org.routes.js";
 import membershipRoutes from "./modules/membership/membership.routes.js";
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
+import { allowRoles } from "./middlewares/rbac.middleware.js";
 
 app.use(cors());
 app.use(express.json());
@@ -32,6 +33,19 @@ app.get("/api/org-data", protect, requireActiveOrg, (req, res) => {
     },
   });
 });
+
+app.get(
+  "/api/admin-only",
+  protect,
+  requireActiveOrg,
+  allowRoles("owner", "admin"),
+  (req, res) => {
+    res.json({
+      success: true,
+      message: "Admin access granted",
+    });
+  },
+);
 
 app.use("/api/auth", userRoutes);
 app.use("/api/org", orgRoutes);
