@@ -5,6 +5,7 @@ const app = express();
 
 import userRoutes from "./modules/user/user.routes.js";
 import orgRoutes from "./modules/organization/org.routes.js";
+import membershipRoutes from "./modules/membership/membership.routes.js";
 import { protect } from "./middlewares/auth.middleware.js";
 
 app.use(cors());
@@ -21,5 +22,6 @@ app.get("/api/protected", protect, (req, res) => {
 
 app.use("/api/auth", userRoutes);
 app.use("/api/org", orgRoutes);
+app.use("/api/membership", membershipRoutes);
 
 export default app;
