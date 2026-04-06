@@ -7,3 +7,17 @@ export const getUserOrganizatoions = async (userId) => {
   }).populate("organization");
   return memberships;
 };
+
+export const switchOrg = async (userId, orgId) => {
+  const membership = await Membership.findOne({
+    user: userId,
+    organization: orgId,
+    status: "active",
+  });
+
+  if (!membership) {
+    throw new Error("Access denied to this organization");
+  }
+
+  return membership;
+};

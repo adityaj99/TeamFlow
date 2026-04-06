@@ -1,4 +1,5 @@
-import { getUserOrganizatoions } from "./membership.service.js";
+import Membership from "./membership.model.js";
+import { getUserOrganizatoions, switchOrg } from "./membership.service.js";
 
 export const getMyOrganizations = async (req, res) => {
   try {
@@ -8,5 +9,23 @@ export const getMyOrganizations = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const switchOrganization = async (req, res) => {
+  try {
+    const { orgId } = req.body;
+
+    await switchOrg(req.user._id, orgId);
+
+    res.cookie("activeOrg", orgId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.json({ success: true, message: "Organization switched successfully" });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
   }
 };
