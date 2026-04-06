@@ -7,6 +7,7 @@ import userRoutes from "./modules/user/user.routes.js";
 import orgRoutes from "./modules/organization/org.routes.js";
 import membershipRoutes from "./modules/membership/membership.routes.js";
 import { protect } from "./middlewares/auth.middleware.js";
+import { requireActiveOrg } from "./middlewares/org.middleware.js";
 
 app.use(cors());
 app.use(express.json());
@@ -16,8 +17,20 @@ app.get("/", (req, res) => {
   res.send("Teamflow is running!");
 });
 
+//test routes
 app.get("/api/protected", protect, (req, res) => {
   res.send("This is a protected route. User ID: " + req.user._id);
+});
+
+app.get("/api/org-data", protect, requireActiveOrg, (req, res) => {
+  res.json({
+    success: true,
+    message: "Org context working",
+    data: {
+      orgId: req.orgId,
+      role: req.role,
+    },
+  });
 });
 
 app.use("/api/auth", userRoutes);
