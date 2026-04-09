@@ -7,6 +7,16 @@ export const createInviteService = async ({ email, role, orgId }) => {
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+  const existingInvite = await Invite.findOne({
+    email,
+    organization: orgId,
+    status: "pending",
+  });
+
+  if (existingInvite) {
+    throw new Error("An active invite already exists for this email");
+  }
+
   const invite = await Invite.create({
     email,
     role,
@@ -18,9 +28,7 @@ export const createInviteService = async ({ email, role, orgId }) => {
   return invite;
 };
 
-export const acceptInviteService = async ({ token, userId }) => {
-  const invite = await Invite.findOne({ token });
-
+export const validateInvite = async (invite) => {
   if (!invite) {
     throw new Error("Invalid or expired invite token");
   }
@@ -34,6 +42,12 @@ export const acceptInviteService = async ({ token, userId }) => {
     await invite.save();
     throw new Error("Invite token has expired");
   }
+};
+
+export const acceptInviteService = async ({ token, userId }) => {
+  const invite = await Invite.findOne({ token });
+
+  await validateInvite(invite);
 
   const user = await User.findById(userId);
 
@@ -59,5 +73,23 @@ export const acceptInviteService = async ({ token, userId }) => {
   invite.status = "accepted";
   await invite.save();
 
+  return invite;
+};
+
+export const resendInviteService = async (inviteId) => {
+  const invite = await Invite.findById(inviteId);
+
+  if (!invite) {
+    throw new Error("Invite not found");
+  }
+
+  if (invite.status === "accepted") {
+    throw new Error("Cannot resend an accepted invite");
+  }
+
+  invite.token = crypto.randomBytes(32).toString("hex");
+  invite.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  invite.status = "pending";
+  await invite.save();
   return invite;
 };

@@ -1,4 +1,8 @@
-import { acceptInviteService, createInviteService } from "./invite.service.js";
+import {
+  acceptInviteService,
+  createInviteService,
+  resendInviteService,
+} from "./invite.service.js";
 
 export const createInvite = async (req, res) => {
   try {
@@ -37,6 +41,25 @@ export const acceptInvite = async (req, res) => {
     res.json({
       success: true,
       message: "Successfully joined the organization",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const resendInvite = async (req, res) => {
+  try {
+    const { inviteId } = req.body;
+    const invite = await resendInviteService(inviteId);
+    res.json({
+      success: true,
+      message: "Invite resent successfully",
+      data: {
+        token: invite.token,
+      },
     });
   } catch (error) {
     res.status(400).json({
