@@ -65,6 +65,6 @@ const taskSchema = new mongoose.Schema(
 taskSchema.index({ organization: 1 });
 taskSchema.index({ assignedTo: 1 });
 
-const task = mongoose.model("Task", taskSchema);
+const Task = mongoose.model("Task", taskSchema);
 
-export default task;
+export default Task;

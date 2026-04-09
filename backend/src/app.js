@@ -8,6 +8,7 @@ import orgRoutes from "./modules/organization/org.routes.js";
 import membershipRoutes from "./modules/membership/membership.routes.js";
 import inviteRoutes from "./modules/invite/invite.routes.js";
 import projectRoutes from "./modules/project/project.routes.js";
+import taskRoutes from "./modules/task/task.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
@@ -55,5 +56,6 @@ app.use("/api/org", orgRoutes);
 app.use("/api/membership", membershipRoutes);
 app.use("/api/invite", inviteRoutes);
 app.use("/api/project", projectRoutes);
+app.use("/api/task", taskRoutes);
 
 export default app;
