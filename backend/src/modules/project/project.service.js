@@ -1,4 +1,5 @@
 import Project from "./project.model.js";
+import { createAuditLog } from "../audit/audit.service.js";
 
 export const createProjectService = async (
   userId,
@@ -10,6 +11,14 @@ export const createProjectService = async (
     description,
     organization: orgId,
     createdBy: userId,
+  });
+
+  await createAuditLog({
+    action: "CREATE_PROJECT",
+    userId,
+    orgId,
+    targetId: project._id,
+    targetType: "Project",
   });
 
   return project;

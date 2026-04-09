@@ -1,3 +1,4 @@
+import { createAuditLog } from "../audit/audit.service.js";
 import Task from "./task.model.js";
 
 export const createTaskService = async (userId, orgId, data) => {
@@ -57,6 +58,17 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
   task.status = status;
 
   await task.save();
+
+  await createAuditLog({
+    action: "UPDATE_TASK",
+    userId: user._id,
+    orgId: task.organization,
+    targetId: task._id,
+    targetType: "Task",
+    metadata: {
+      newStatus: task.status,
+    },
+  });
 
   return task;
 };
