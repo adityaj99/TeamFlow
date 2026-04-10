@@ -2,6 +2,7 @@ import crypto from "crypto";
 import Invite from "./invite.model.js";
 import User from "../user/user.model.js";
 import Membership from "../membership/membership.model.js";
+import { sendEmail } from "../../utils/email.js";
 
 export const createInviteService = async ({ email, role, orgId }) => {
   const token = crypto.randomBytes(32).toString("hex");
@@ -23,6 +24,19 @@ export const createInviteService = async ({ email, role, orgId }) => {
     organization: orgId,
     token,
     expiresAt,
+  });
+
+  const inviteLink = `${process.env.FRONTEND_URL}/accept-invite?token=${token}`;
+
+  await sendEmail({
+    to: email,
+    subject: "You're invited to join an organization on TeamFlow",
+    html: `
+      <p>You have been invited to join an organization on TeamFlow as a ${role}.</p>
+      <p>Click the link below to accept the invite:</p>
+      <a href="${inviteLink}">Accept Invite</a>
+      <p>This invite will expire in 24 hours.</p>
+    `,
   });
 
   return invite;
