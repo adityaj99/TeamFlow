@@ -1,4 +1,5 @@
 import { createAuditLog } from "../audit/audit.service.js";
+import { createNotifcationService } from "../notification/notification.service.js";
 import Task from "./task.model.js";
 
 export const createTaskService = async (userId, orgId, data) => {
@@ -7,6 +8,16 @@ export const createTaskService = async (userId, orgId, data) => {
     organization: orgId,
     createdBy: userId,
   });
+
+  if (data.assignedTo) {
+    await createNotifcationService({
+      userId: data.assignedTo,
+      orgId,
+      type: "TASK_ASSIGNED",
+      message: `You have been assigned a new task: ${task.title}`,
+      relatedId: task._id,
+    });
+  }
 
   return task;
 };

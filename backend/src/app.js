@@ -10,6 +10,7 @@ import inviteRoutes from "./modules/invite/invite.routes.js";
 import projectRoutes from "./modules/project/project.routes.js";
 import taskRoutes from "./modules/task/task.routes.js";
 import commentRoutes from "./modules/comment/comment.routes.js";
+import notificationRoutes from "./modules/notification/notification.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
@@ -59,5 +60,6 @@ app.use("/api/invite", inviteRoutes);
 app.use("/api/project", projectRoutes);
 app.use("/api/task", taskRoutes);
 app.use("/api/comment", commentRoutes);
+app.use("/api/notification", notificationRoutes);
 
 export default app;
