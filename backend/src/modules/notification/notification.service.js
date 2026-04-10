@@ -1,19 +1,8 @@
+import notificationQueue from "../../queues/notification.queue.js";
 import Notification from "./notification.model.js";
 
-export const createNotifcationService = async ({
-  userId,
-  orgId,
-  type,
-  message,
-  relatedId,
-}) => {
-  await Notification.create({
-    user: userId,
-    organization: orgId,
-    type,
-    message,
-    relatedId,
-  });
+export const createNotifcationService = async (data) => {
+  await notificationQueue.add("send_notification", data);
 };
 
 export const getNotificationsService = async (userId) => {
