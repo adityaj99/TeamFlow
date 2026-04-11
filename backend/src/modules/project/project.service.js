@@ -34,6 +34,13 @@ export const getProjectsService = async (orgId, query) => {
     status: "active",
   };
 
+  if (query.q) {
+    filter.$or = [
+      { name: { $regex: query.q, $options: "i" } },
+      { description: { $regex: query.q, $options: "i" } },
+    ];
+  }
+
   const projects = await Project.find(filter)
     .skip(skip)
     .limit(limit)

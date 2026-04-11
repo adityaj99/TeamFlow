@@ -12,6 +12,7 @@ import projectRoutes from "./modules/project/project.routes.js";
 import taskRoutes from "./modules/task/task.routes.js";
 import commentRoutes from "./modules/comment/comment.routes.js";
 import notificationRoutes from "./modules/notification/notification.routes.js";
+import uploadRoutes from "./modules/upload/upload.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
@@ -73,5 +74,6 @@ app.use("/api/project", projectRoutes);
 app.use("/api/task", taskRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/upload", uploadRoutes);
 
 export default app;

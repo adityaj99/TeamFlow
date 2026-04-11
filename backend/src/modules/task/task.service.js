@@ -78,13 +78,19 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
   const { status, submission } = updateData;
 
   if (status === "sumbitted") {
-    if (!submission || !submission.note) {
-      throw new Error("submission note required");
+    if (
+      !submission?.note &&
+      (!submission?.attachments || submission.attachments.length === 0)
+    ) {
+      throw new Error(
+        "submission note or attachments are required when submitting a task",
+      );
     }
   }
 
   task.submission = {
-    ...submission,
+    note: submission.note,
+    attachments: submission.attachments || [],
     submittedAt: new Date(),
   };
 
