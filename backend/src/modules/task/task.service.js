@@ -22,16 +22,37 @@ export const createTaskService = async (userId, orgId, data) => {
   return task;
 };
 
-export const getTasksService = async (orgId, projectId) => {
+export const getTasksService = async (orgId, query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   const filter = { organization: orgId };
 
-  if (projectId) {
-    filter.project = projectId;
+  if (query.projectId) {
+    filter.project = query.projectId;
   }
 
-  const tasks = await Task.find(filter);
+  if (query.status) {
+    filter.status = query.status;
+  }
 
-  return tasks;
+  const tasks = await Task.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const total = await Task.countDocuments(filter);
+
+  return {
+    tasks,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const updateTaskStatusService = async (taskId, user, updateData) => {

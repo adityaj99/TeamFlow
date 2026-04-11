@@ -20,9 +20,13 @@ export const createTask = async (req, res) => {
 
 export const getTasks = async (req, res) => {
   try {
-    const { projectId } = req.query;
-    const tasks = await getTasksService(req.orgId, projectId);
-    res.json({ success: true, message: "Tasks retrieved", data: tasks });
+    const result = await getTasksService(req.orgId, req.query);
+    res.json({
+      success: true,
+      message: "Tasks retrieved",
+      data: result.tasks,
+      pagination: result.pagination,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

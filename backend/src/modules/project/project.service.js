@@ -24,10 +24,30 @@ export const createProjectService = async (
   return project;
 };
 
-export const getProjectsService = async (orgId) => {
-  const projects = await Project.find({
+export const getProjectsService = async (orgId, query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const filter = {
     organization: orgId,
     status: "active",
-  }).sort({ createdAt: -1 });
-  return projects;
+  };
+
+  const projects = await Project.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const total = await Project.countDocuments(filter);
+
+  return {
+    projects,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };

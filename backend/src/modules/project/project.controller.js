@@ -28,8 +28,14 @@ export const createProject = async (req, res) => {
 
 export const getProjects = async (req, res) => {
   try {
-    const projects = await getProjectsService(req.orgId);
-    res.status(200).json({ success: true, data: projects });
+    const result = await getProjectsService(req.orgId, req.query);
+    res
+      .status(200)
+      .json({
+        success: true,
+        data: result.projects,
+        pagination: result.pagination,
+      });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
