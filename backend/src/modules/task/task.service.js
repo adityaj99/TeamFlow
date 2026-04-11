@@ -37,6 +37,13 @@ export const getTasksService = async (orgId, query) => {
     filter.status = query.status;
   }
 
+  if (query.q) {
+    filter.$or = [
+      { title: { $regex: query.q, $options: "i" } },
+      { description: { $regex: query.q, $options: "i" } },
+    ];
+  }
+
   const tasks = await Task.find(filter)
     .skip(skip)
     .limit(limit)
