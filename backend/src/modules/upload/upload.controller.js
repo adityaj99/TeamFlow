@@ -1,9 +1,11 @@
 import { uploadFileService } from "./upload.service.js";
 
-export const uploadFile = async (req, res) => {
+export const uploadFile = async (req, res, next) => {
   try {
     if (!req.file) {
-      throw new Error("No file uploaded");
+      const error = new Error("No file uploaded");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const result = await uploadFileService(req.file);
@@ -14,10 +16,6 @@ export const uploadFile = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };

@@ -35,7 +35,7 @@ const loginUser = async ({ email, password }) => {
 
   const token = generateToken({ userId: user._id });
 
-  return { userId: user._id, token };
+  return { token };
 };
 
 export { registerUser, loginUser };

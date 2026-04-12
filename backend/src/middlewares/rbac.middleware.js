@@ -4,18 +4,14 @@ export const allowRoles = (...allowedRoles) => {
       const userRole = req.role;
 
       if (!userRole || !allowedRoles.includes(userRole)) {
-        return res.status(403).json({
-          success: false,
-          message: "Access denied: insufficient permissions",
-        });
+        const error = new Error("Access denied: insufficient permissions");
+        error.statusCode = 403;
+        return next(error);
       }
 
       next();
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message || "Internal server error",
-      });
+      next(error);
     }
   };
 };

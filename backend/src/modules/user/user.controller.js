@@ -1,25 +1,29 @@
+import {
+  loginSchema,
+  registerSchema,
+} from "../../validations/auth.validation.js";
 import { loginUser, registerUser } from "./user.service.js";
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
-    const user = await registerUser(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "User registered successfully",
-        userId: user._id,
-      });
+    const validatedData = registerSchema.parse(req.body);
+
+    const user = await registerUser(validatedData);
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      userId: user._id,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const validatedData = loginSchema.parse(req.body);
 
-    const { userId, token } = await loginUser({ email, password });
+    const { token } = await loginUser(validatedData);
 
     res.cookie("tf_token", token, {
       httpOnly: true,
@@ -30,7 +34,7 @@ const login = async (req, res) => {
 
     res.json({ success: true, message: "Login successful" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 

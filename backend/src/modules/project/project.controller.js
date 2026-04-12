@@ -1,42 +1,33 @@
+import { createProjectSchema } from "../../validations/project.validation.js";
 import { createProjectService, getProjectsService } from "./project.service.js";
 
-export const createProject = async (req, res) => {
+export const createProject = async (req, res, next) => {
   try {
-    const { name, description } = req.body;
+    const validatedData = createProjectSchema.parse(req.body);
+
     const userId = req.user._id;
     const orgId = req.orgId;
 
-    if (!name || name.trim() === "") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Project name is required" });
-    }
-
-    const project = await createProjectService(userId, orgId, {
-      name,
-      description,
-    });
+    const project = await createProjectService(userId, orgId, validatedData);
     res.status(201).json({
       success: true,
       message: "Project created successfully",
       data: project,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getProjects = async (req, res) => {
+export const getProjects = async (req, res, next) => {
   try {
     const result = await getProjectsService(req.orgId, req.query);
-    res
-      .status(200)
-      .json({
-        success: true,
-        data: result.projects,
-        pagination: result.pagination,
-      });
+    res.status(200).json({
+      success: true,
+      data: result.projects,
+      pagination: result.pagination,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

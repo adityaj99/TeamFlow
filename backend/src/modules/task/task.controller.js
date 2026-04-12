@@ -1,12 +1,22 @@
 import {
+  createTaskSchema,
+  updateTaskStatusSchema,
+} from "../../validations/task.validation.js";
+import {
   createTaskService,
   getTasksService,
   updateTaskStatusService,
 } from "./task.service.js";
 
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
   try {
-    const task = await createTaskService(req.user._id, req.orgId, req.body);
+    validatedData = createTaskSchema.parse(req.body);
+
+    const task = await createTaskService(
+      req.user._id,
+      req.orgId,
+      validatedData,
+    );
 
     res.status(201).json({
       success: true,
@@ -14,36 +24,39 @@ export const createTask = async (req, res) => {
       data: task,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getTasks = async (req, res) => {
+export const getTasks = async (req, res, next) => {
   try {
     const result = await getTasksService(req.orgId, req.query);
     res.json({
       success: true,
-      message: "Tasks retrieved",
       data: result.tasks,
       pagination: result.pagination,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const updateTaskStatus = async (req, res) => {
+export const updateTaskStatus = async (req, res, next) => {
   try {
+    const validatedData = updateTaskStatusSchema.parse(req.body);
+
     const task = await updateTaskStatusService(
       req.params.id,
       {
         _id: req.user._id,
         role: req.role,
       },
-      req.body,
+      validatedData,
     );
-    res.json({ success: true, message: "Task updated", data: task });
+    res
+      .status(200)
+      .json({ success: true, message: "Task updated", data: task });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };

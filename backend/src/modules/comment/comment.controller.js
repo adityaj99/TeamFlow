@@ -1,6 +1,6 @@
 import { createCommentService, getCommentsService } from "./comment.service.js";
 
-export const createComment = async (req, res) => {
+export const createComment = async (req, res, next) => {
   try {
     const comment = await createCommentService(
       req.user._id,
@@ -13,19 +13,18 @@ export const createComment = async (req, res) => {
       data: comment,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getComments = async (req, res) => {
+export const getComments = async (req, res, next) => {
   try {
     const comments = await getCommentsService(req.params.taskId);
     res.status(200).json({
       success: true,
-      message: "Comments retrieved",
       data: comments,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

@@ -5,9 +5,9 @@ export const requireActiveOrg = async (req, res, next) => {
     const orgId = req.cookies.activeOrg;
 
     if (!orgId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Active organization not set" });
+      const error = new Error("No active organization selected");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const membership = await Membership.findOne({
@@ -17,12 +17,11 @@ export const requireActiveOrg = async (req, res, next) => {
     });
 
     if (!membership) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Access denied for this organization",
-        });
+      const error = new Error(
+        "User is not a member of the active organization",
+      );
+      error.statusCode = 403;
+      return next(error);
     }
 
     req.orgId = orgId;
@@ -30,6 +29,6 @@ export const requireActiveOrg = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
 };

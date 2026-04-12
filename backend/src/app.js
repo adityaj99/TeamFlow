@@ -19,6 +19,7 @@ import { requireActiveOrg } from "./middlewares/org.middleware.js";
 import { allowRoles } from "./middlewares/rbac.middleware.js";
 import limiter from "./middlewares/rateLimiter.js";
 import rateLimit from "express-rate-limit";
+import errorHandler from "./middlewares/error.middleware.js";
 
 app.use(helmet());
 app.use(cors());
@@ -75,5 +76,7 @@ app.use("/api/task", taskRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
+
+app.use(errorHandler);
 
 export default app;

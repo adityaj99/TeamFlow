@@ -1,20 +1,19 @@
 import Membership from "./membership.model.js";
 import { getUserOrganizatoions, switchOrg } from "./membership.service.js";
 
-export const getMyOrganizations = async (req, res) => {
+export const getMyOrganizations = async (req, res, next) => {
   try {
     const org = await getUserOrganizatoions(req.user._id);
     res.status(200).json({
       success: true,
       organization: org,
-      message: "Organizations retrieved successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const switchOrganization = async (req, res) => {
+export const switchOrganization = async (req, res, next) => {
   try {
     const { orgId } = req.body;
 
@@ -28,6 +27,6 @@ export const switchOrganization = async (req, res) => {
 
     res.json({ success: true, message: "Organization switched successfully" });
   } catch (error) {
-    res.status(403).json({ success: false, message: error.message });
+    next(error);
   }
 };

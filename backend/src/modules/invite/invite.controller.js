@@ -4,7 +4,7 @@ import {
   resendInviteService,
 } from "./invite.service.js";
 
-export const createInvite = async (req, res) => {
+export const createInvite = async (req, res, next) => {
   try {
     const { email, role } = req.body;
 
@@ -16,20 +16,17 @@ export const createInvite = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Invite created successfully",
+      message: "Invite created",
       data: {
         token: invite.token,
       },
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-export const acceptInvite = async (req, res) => {
+export const acceptInvite = async (req, res, next) => {
   try {
     const { token } = req.body;
 
@@ -43,28 +40,22 @@ export const acceptInvite = async (req, res) => {
       message: "Successfully joined the organization",
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-export const resendInvite = async (req, res) => {
+export const resendInvite = async (req, res, next) => {
   try {
     const { inviteId } = req.body;
     const invite = await resendInviteService(inviteId);
     res.json({
       success: true,
-      message: "Invite resent successfully",
+      message: "Invite resent",
       data: {
         token: invite.token,
       },
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
