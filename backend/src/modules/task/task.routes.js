@@ -11,7 +11,7 @@ router.post(
   "/",
   protect,
   requireActiveOrg,
-  allowRoles("owner", "admin", "member"),
+  allowRoles("owner", "admin", "manager"),
   createTask,
 );
 

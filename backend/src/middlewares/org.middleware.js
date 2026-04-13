@@ -29,6 +29,7 @@ export const requireActiveOrg = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error("Org Middleware Error:", error);
     next(error);
   }
 };

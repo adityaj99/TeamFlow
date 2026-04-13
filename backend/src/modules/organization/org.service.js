@@ -1,12 +1,18 @@
 import Membership from "../membership/membership.model.js";
 import Organization from "./org.model.js";
 
-export const createOrganization = async (userId, { name, description }) => {
+export const createOrganization = async (
+  userId,
+  { name, description },
+  next,
+) => {
   const slug = name.toLowerCase().replace(/\s+/g, "-");
 
   const existingOrg = await Organization.findOne({ slug });
   if (existingOrg) {
-    throw new Error("Organization with this name already exists");
+    const error = new Error("Organization with this name already exists");
+    error.status = 400;
+    next(error);
   }
 
   const org = await Organization.create({

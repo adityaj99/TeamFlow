@@ -17,7 +17,7 @@ export const switchOrganization = async (req, res, next) => {
   try {
     const { orgId } = req.body;
 
-    await switchOrg(req.user._id, orgId);
+    await switchOrg(req.user._id, orgId, next);
 
     res.cookie("activeOrg", orgId, {
       httpOnly: true,

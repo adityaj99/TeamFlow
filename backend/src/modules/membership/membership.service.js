@@ -1,3 +1,4 @@
+import { getNextMillis } from "bullmq";
 import Membership from "./membership.model.js";
 
 export const getUserOrganizatoions = async (userId) => {
@@ -8,7 +9,7 @@ export const getUserOrganizatoions = async (userId) => {
   return memberships;
 };
 
-export const switchOrg = async (userId, orgId) => {
+export const switchOrg = async (userId, orgId, next) => {
   const membership = await Membership.findOne({
     user: userId,
     organization: orgId,
@@ -16,7 +17,9 @@ export const switchOrg = async (userId, orgId) => {
   });
 
   if (!membership) {
-    throw new Error("Access denied to this organization");
+    const error = new Error("Access denied to this organization");
+    error.status = 403;
+    next(error);
   }
 
   return membership;

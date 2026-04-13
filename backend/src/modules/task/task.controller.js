@@ -10,7 +10,7 @@ import {
 
 export const createTask = async (req, res, next) => {
   try {
-    validatedData = createTaskSchema.parse(req.body);
+    const validatedData = createTaskSchema.parse(req.body);
 
     const task = await createTaskService(
       req.user._id,
@@ -52,6 +52,7 @@ export const updateTaskStatus = async (req, res, next) => {
         role: req.role,
       },
       validatedData,
+      next,
     );
     res
       .status(200)

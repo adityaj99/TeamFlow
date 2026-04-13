@@ -62,41 +62,58 @@ export const getTasksService = async (orgId, query) => {
   };
 };
 
-export const updateTaskStatusService = async (taskId, user, updateData) => {
+export const updateTaskStatusService = async (
+  taskId,
+  user,
+  updateData,
+  next,
+) => {
   const task = await Task.findById(taskId);
 
   if (!task) {
-    throw new Error("Task not found");
-  }
-
-  if (user.role === "member") {
-    if (task.assignedTo?.toString() !== user._id.toString()) {
-      throw new Error("You can only update your own task");
-    }
+    const error = new Error("Task not found");
+    error.status = 404;
+    next(error);
   }
 
   const { status, submission } = updateData;
 
-  if (status === "sumbitted") {
+  if (!["approved", "rejected"].includes(status)) {
+    if (task.assignedTo?.toString() !== user._id.toString()) {
+      const error = new Error("Not allowed to update status");
+      error.status = 403;
+      next(error);
+    }
+  }
+
+  if (status === "submitted") {
     if (
       !submission?.note &&
       (!submission?.attachments || submission.attachments.length === 0)
     ) {
-      throw new Error(
-        "submission note or attachments are required when submitting a task",
-      );
+      const error = new Error("Submission must include a note or attachments");
+      error.status = 400;
+      next(error);
     }
-  }
 
-  task.submission = {
-    note: submission.note,
-    attachments: submission.attachments || [],
-    submittedAt: new Date(),
-  };
+    task.submission = {
+      note: submission.note || "",
+      attachments: submission.attachments || [],
+      submittedAt: new Date(),
+    };
+  }
 
   if (["approved", "rejected"].includes(status)) {
     if (!["admin", "owner", "manager"].includes(user.role)) {
-      throw new Error("Not allowed to approve/reject");
+      const error = new Error("Not allowed to approve/reject");
+      error.status = 403;
+      next(error);
+    }
+
+    if (task.status !== "submitted") {
+      const error = new Error("Task must be submitted before approval");
+      error.status = 400;
+      next(error);
     }
   }
 
