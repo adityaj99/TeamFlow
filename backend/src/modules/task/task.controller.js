@@ -52,7 +52,6 @@ export const updateTaskStatus = async (req, res, next) => {
         role: req.role,
       },
       validatedData,
-      next,
     );
     res
       .status(200)

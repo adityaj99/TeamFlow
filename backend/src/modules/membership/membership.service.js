@@ -9,7 +9,7 @@ export const getUserOrganizatoions = async (userId) => {
   return memberships;
 };
 
-export const switchOrg = async (userId, orgId, next) => {
+export const switchOrg = async (userId, orgId) => {
   const membership = await Membership.findOne({
     user: userId,
     organization: orgId,
@@ -19,7 +19,7 @@ export const switchOrg = async (userId, orgId, next) => {
   if (!membership) {
     const error = new Error("Access denied to this organization");
     error.status = 403;
-    next(error);
+    throw error;
   }
 
   return membership;

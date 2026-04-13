@@ -62,18 +62,13 @@ export const getTasksService = async (orgId, query) => {
   };
 };
 
-export const updateTaskStatusService = async (
-  taskId,
-  user,
-  updateData,
-  next,
-) => {
+export const updateTaskStatusService = async (taskId, user, updateData) => {
   const task = await Task.findById(taskId);
 
   if (!task) {
     const error = new Error("Task not found");
     error.status = 404;
-    next(error);
+    throw error;
   }
 
   const { status, submission } = updateData;
@@ -82,7 +77,7 @@ export const updateTaskStatusService = async (
     if (task.assignedTo?.toString() !== user._id.toString()) {
       const error = new Error("Not allowed to update status");
       error.status = 403;
-      next(error);
+      throw error;
     }
   }
 
@@ -93,7 +88,7 @@ export const updateTaskStatusService = async (
     ) {
       const error = new Error("Submission must include a note or attachments");
       error.status = 400;
-      next(error);
+      throw error;
     }
 
     task.submission = {
@@ -107,13 +102,13 @@ export const updateTaskStatusService = async (
     if (!["admin", "owner", "manager"].includes(user.role)) {
       const error = new Error("Not allowed to approve/reject");
       error.status = 403;
-      next(error);
+      throw error;
     }
 
     if (task.status !== "submitted") {
       const error = new Error("Task must be submitted before approval");
       error.status = 400;
-      next(error);
+      throw error;
     }
   }
 

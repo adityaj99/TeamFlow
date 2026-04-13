@@ -4,7 +4,7 @@ import User from "../user/user.model.js";
 import Membership from "../membership/membership.model.js";
 import { sendEmail } from "../../utils/email.js";
 
-export const createInviteService = async ({ email, role, orgId }, next) => {
+export const createInviteService = async ({ email, role, orgId }) => {
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
@@ -17,7 +17,7 @@ export const createInviteService = async ({ email, role, orgId }, next) => {
   if (existingInvite) {
     const error = new Error("An active invite already exists for this email");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   const invite = await Invite.create({
@@ -44,17 +44,17 @@ export const createInviteService = async ({ email, role, orgId }, next) => {
   return invite;
 };
 
-export const validateInvite = async (invite, next) => {
+export const validateInvite = async (invite) => {
   if (!invite) {
     const error = new Error("Invalid or expired invite token");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   if (invite.status !== "pending") {
     const error = new Error("Invite has already been accepted or expired");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   if (invite.expiresAt < new Date()) {
@@ -62,11 +62,11 @@ export const validateInvite = async (invite, next) => {
     await invite.save();
     const error = new Error("Invite token has expired");
     error.status = 400;
-    next(error);
+    throw error;
   }
 };
 
-export const acceptInviteService = async ({ token, userId }, next) => {
+export const acceptInviteService = async ({ token, userId }) => {
   const invite = await Invite.findOne({ token });
 
   await validateInvite(invite, next);
@@ -76,7 +76,7 @@ export const acceptInviteService = async ({ token, userId }, next) => {
   if (user.email !== invite.email) {
     const error = new Error("This invite is not for your email address");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   const existing = await Membership.findOne({
@@ -87,7 +87,7 @@ export const acceptInviteService = async ({ token, userId }, next) => {
   if (existing) {
     const error = new Error("Already a member of this organization");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   await Membership.create({
@@ -102,19 +102,19 @@ export const acceptInviteService = async ({ token, userId }, next) => {
   return invite;
 };
 
-export const resendInviteService = async (inviteId, next) => {
+export const resendInviteService = async (inviteId) => {
   const invite = await Invite.findById(inviteId);
 
   if (!invite) {
     const error = new Error("Invite not found");
     error.status = 404;
-    next(error);
+    throw error;
   }
 
   if (invite.status === "accepted") {
     const error = new Error("Cannot resend an accepted invite");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   invite.token = crypto.randomBytes(32).toString("hex");

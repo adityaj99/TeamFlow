@@ -3,17 +3,6 @@ import cloudinary from "../../config/cloudinary.js";
 import fs from "fs";
 
 export const uploadFileService = async (file) => {
-  //   const result = await cloudinary.uploader.upload(file.path, {
-  //     folder: "teamflow",
-  //   });
-
-  //   fs.unlinkSync(file.path);
-
-  //   return {
-  //     url: result.secure_url,
-  //     public_id: result.public_id,
-  //   };
-
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {

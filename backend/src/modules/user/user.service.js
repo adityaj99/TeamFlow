@@ -1,14 +1,15 @@
+import { errorToJSON } from "bullmq";
 import { generateToken } from "../../utils/generateToken.js";
 import { comparePassword, hashPassword } from "../../utils/hashPassword.js";
 import User from "./user.model.js";
 
-const registerUser = async ({ name, email, password }, next) => {
+const registerUser = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
     const error = new Error("User already exists");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   const hashedPassword = await hashPassword(password);
@@ -22,13 +23,13 @@ const registerUser = async ({ name, email, password }, next) => {
   return user;
 };
 
-const loginUser = async ({ email, password }, next) => {
+const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ email });
 
   if (!user) {
     const error = new Error("Invalid credentials");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   const isMatch = await comparePassword(password, user.password);
@@ -36,7 +37,7 @@ const loginUser = async ({ email, password }, next) => {
   if (!isMatch) {
     const error = new Error("Invalid credentials");
     error.status = 400;
-    next(error);
+    throw error;
   }
 
   const token = generateToken({ userId: user._id });
@@ -44,4 +45,30 @@ const loginUser = async ({ email, password }, next) => {
   return { token };
 };
 
-export { registerUser, loginUser };
+const getProfileService = async (userId) => {
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+
+  return user;
+};
+
+const updateUserProfileService = async (userId, data) => {
+  const user = await User.findByIdAndUpdate(userId, data, {
+    returnDocument: "after",
+  }).select("-password");
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+
+  return user;
+};
+
+export { registerUser, loginUser, getProfileService, updateUserProfileService };
