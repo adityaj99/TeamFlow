@@ -1,6 +1,4 @@
-import { resolve } from "dns";
 import cloudinary from "../../config/cloudinary.js";
-import fs from "fs";
 
 export const uploadFileService = async (file) => {
   return new Promise((resolve, reject) => {

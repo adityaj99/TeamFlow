@@ -1,4 +1,3 @@
-import { errorToJSON } from "bullmq";
 import { generateToken } from "../../utils/generateToken.js";
 import { comparePassword, hashPassword } from "../../utils/hashPassword.js";
 import User from "./user.model.js";

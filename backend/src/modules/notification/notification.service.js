@@ -2,7 +2,8 @@ import notificationQueue from "../../queues/notification.queue.js";
 import Notification from "./notification.model.js";
 
 export const createNotifcationService = async (data) => {
-  await notificationQueue.add("send_notification", data);
+  // await notificationQueue.add("send_notification", data);
+  console.log("Notification skipped (disabled redis)");
 };
 
 export const getNotificationsService = async (userId) => {
