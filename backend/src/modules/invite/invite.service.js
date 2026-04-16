@@ -69,7 +69,7 @@ export const validateInvite = async (invite) => {
 export const acceptInviteService = async ({ token, userId }) => {
   const invite = await Invite.findOne({ token });
 
-  await validateInvite(invite, next);
+  await validateInvite(invite);
 
   const user = await User.findById(userId);
 
