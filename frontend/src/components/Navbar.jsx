@@ -17,7 +17,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex justify-between items-center p-4 border-b bg-white">
+    <header className="flex justify-between items-center p-3 border-b border-gray-200 bg-white">
       <h1 className="font-semibold">Welcome, {user?.name}</h1>
 
       <button

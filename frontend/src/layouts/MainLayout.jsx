@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex">
       {/* Sidebar */}
       <Sidebar />
 
@@ -13,7 +13,7 @@ const MainLayout = ({ children }) => {
         <Navbar />
 
         {/* Content */}
-        <main className="p-4 flex-1">{children}</main>
+        <main className="px-20 py-6 flex-1">{children}</main>
       </div>
     </div>
   );
