@@ -15,23 +15,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* 🔐 Auth Routes */}
-        <Route
-          path="/login"
-          element={
-            <AuthLayout>
-              <Login />
-            </AuthLayout>
-          }
-        />
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/register"
-          element={
-            <AuthLayout>
-              <Register />
-            </AuthLayout>
-          }
-        />
+        <Route path="/register" element={<Register />} />
 
         {/* 🔒 Protected Routes */}
         <Route
