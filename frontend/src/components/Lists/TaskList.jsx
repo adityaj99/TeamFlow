@@ -1,42 +1,25 @@
-const TaskList = () => {
-  const tasks = [
-    {
-      _id: "Task-1",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-    {
-      _id: "Task-2",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-    {
-      _id: "Task-3",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-    {
-      _id: "Task-4",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-    {
-      _id: "Task-5",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-    {
-      _id: "Task-6",
-      title: "Automation Quality Inspection System",
-      date: "Janunary 11th 2026",
-      createdBy: "Aditya J",
-    },
-  ];
+import dateFormat from "../../utils/dateFormat";
+
+const TaskList = ({ tasks = [], isLoading }) => {
+  if (isLoading)
+    return (
+      <div className="flex flex-col gap-2 mt-4">
+        {[1, 2, 3, 4, 5, 6].map((_, indx) => (
+          <div key={indx} className="flex items-center justify-between p-2">
+            <div className="flex flex-col gap-2">
+              <div className="w-35 h-4 bg-gray-100 animate-pulse rounded"></div>
+              <div className="w-60 h-4 bg-gray-100 animate-pulse rounded"></div>
+              <div className="w-30 h-4 bg-gray-100 animate-pulse rounded"></div>
+            </div>
+            <div className="flex gap-2">
+              <div className="w-15 h-7 bg-gray-100 animate-pulse rounded"></div>
+              <div className="w-15 h-7 bg-gray-100 animate-pulse rounded"></div>
+              <div className="w-7 h-7 bg-gray-100 animate-pulse rounded-full"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
 
   return (
     <div className="flex flex-col mt-4">
@@ -50,7 +33,7 @@ const TaskList = () => {
               <p className="text-gray-500">{task._id}</p>
               <div className="flex flex-col">
                 <p className="font-semibold">{task.title}</p>
-                <p className="text-gray-400">{task.date}</p>
+                <p className="text-gray-400">{dateFormat(task.createdAt)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

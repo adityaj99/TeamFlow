@@ -6,13 +6,14 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Profile from "./pages/Profile";
 
-import AuthLayout from "./layouts/AuthLayout";
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TopLoader from "./components/TopLoader";
 
 function App() {
   return (
     <BrowserRouter>
+      <TopLoader />
       <Routes>
         {/* 🔐 Auth Routes */}
         <Route path="/login" element={<Login />} />

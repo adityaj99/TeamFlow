@@ -1,18 +1,18 @@
 import { Activity } from "lucide-react";
 
-const Cards = () => {
+const Cards = ({ stats }) => {
   const cardData = [
     {
       title: "Total tasks",
-      numbers: 15,
+      numbers: stats?.totalTasks || 0,
     },
     {
       title: "Pending tasks",
-      numbers: 5,
+      numbers: stats?.pendingTasks || 0,
     },
     {
       title: "Completed tasks",
-      numbers: 10,
+      numbers: stats?.completedTasks || 0,
     },
   ];
 

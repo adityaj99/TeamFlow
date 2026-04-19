@@ -13,6 +13,7 @@ import taskRoutes from "./modules/task/task.routes.js";
 import commentRoutes from "./modules/comment/comment.routes.js";
 import notificationRoutes from "./modules/notification/notification.routes.js";
 import uploadRoutes from "./modules/upload/upload.routes.js";
+import statsRoutes from "./modules/stats/stats.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
@@ -81,6 +82,7 @@ app.use("/api/task", taskRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.use(errorHandler);
 

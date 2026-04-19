@@ -1,32 +1,28 @@
 import React from "react";
+import dateFormat from "../../utils/dateFormat";
 
-const MemberList = () => {
-  const members = [
-    {
-      _id: 1,
-      name: "Aditya Jadhav",
-      role: "owner",
-      createdAt: "Janunary 11th 2026",
-    },
-    {
-      _id: 2,
-      name: "Emma Watson",
-      role: "manager",
-      createdAt: "February 16th 2026",
-    },
-    {
-      _id: 3,
-      name: "Adam Web",
-      role: "member",
-      createdAt: "Janunary 20th 2026",
-    },
-    {
-      _id: 4,
-      name: "Emily Santner",
-      role: "member",
-      createdAt: "March 01st 2026",
-    },
-  ];
+const MemberList = ({ members = [], isLoading }) => {
+  if (isLoading)
+    return (
+      <div className="flex flex-col gap-2 mt-4">
+        {[1, 2, 3, 4, 5, 6].map((_, indx) => (
+          <div key={indx} className="flex items-center justify-between p-2">
+            <div className="flex gap-2">
+              <div className="w-10 h-10 rounded-full bg-gray-100 animate-pulse"></div>
+              <div className="flex flex-col gap-2">
+                <div className="w-60 h-4 bg-gray-100 animate-pulse rounded"></div>
+                <div className="w-30 h-4 bg-gray-100 animate-pulse rounded"></div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 mr-6">
+              <div className="w-15 h-4 bg-gray-100 animate-pulse rounded"></div>
+              <div className="w-25 h-4 bg-gray-100 animate-pulse rounded"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
 
   return (
     <div className="flex flex-col mt-4 gap-2">
@@ -45,7 +41,7 @@ const MemberList = () => {
             </div>
             <div className="flex flex-col items-start w-[13%] text-gray-400">
               <p>Joined</p>
-              <p>{member.createdAt}</p>
+              <p>{dateFormat(member.createdAt)}</p>
             </div>
           </div>
         ))

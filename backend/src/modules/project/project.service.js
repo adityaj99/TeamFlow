@@ -42,6 +42,7 @@ export const getProjectsService = async (orgId, query) => {
   }
 
   const projects = await Project.find(filter)
+    .populate("createdBy", "name")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 });

@@ -6,7 +6,7 @@ export const getMyOrganizations = async (req, res, next) => {
     const org = await getUserOrganizatoions(req.user._id);
     res.status(200).json({
       success: true,
-      organization: org,
+      data: org,
     });
   } catch (error) {
     next(error);

@@ -1,42 +1,48 @@
-import { useEffect, useState } from "react";
-import api from "../api/axios";
+import { useState } from "react";
 
 import Cards from "../components/Cards";
 import ProjectList from "../components/Lists/ProjectList";
 import TaskList from "../components/Lists/TaskList";
 import MemberList from "../components/Lists/MemberList";
 
+// 🔥 queries
+import { useProjects } from "../api/queries/project.query";
+import { useTasks } from "../api/queries/task.query";
+import { useMembers } from "../api/queries/member.query";
+import { useStats } from "../api/queries/stats.query";
+
 const Dashboard = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [noOrg, setNoOrg] = useState(false);
   const [tab, setTab] = useState("projects");
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await api.get("/api/project");
-        setProjects(res.data.data || []);
-      } catch (err) {
-        // 🔥 detect no org case
-        if (err.response?.status === 400 || err.response?.status === 401) {
-          setNoOrg(true);
-        } else {
-          setError("Failed to load projects");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 🔥 queries (parallel fetching)
+  const {
+    data: projects = [],
+    isLoading: projectsLoading,
+    error: projectsError,
+  } = useProjects({ limit: 10 }, { enabled: tab === "projects" });
 
-    fetchProjects();
-  }, []);
+  const { data: tasks = [], isLoading: tasksLoading } = useTasks(
+    { limit: 10 },
+    { enabled: tab === "tasks" },
+  );
+  const { data: members = [], isLoading: membersLoading } = useMembers(
+    {
+      limit: 10,
+    },
+    { enabled: tab === "members" },
+  );
+  const {
+    data: stats,
+    error: statsError,
+    isLoading: orgLoading,
+  } = useStats({ scope: "org" });
 
-  if (loading) return <p>Loading...</p>;
+  // 🔥 detect no org
+  const noOrg =
+    statsError?.response?.status === 400 ||
+    statsError?.response?.status === 401;
 
-  // 🔥 NO ORG UI
-  if (!noOrg) {
+  if (noOrg) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center">
         <h1 className="text-2xl font-bold mb-2">Welcome 👋</h1>
@@ -51,10 +57,9 @@ const Dashboard = () => {
     );
   }
 
-  if (error) return <p className="text-red-500">{error}</p>;
-
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex justify-between">
         <div className="flex flex-col gap-2 mb-6">
           <h1 className="text-2xl font-bold">Workspace Overview</h1>
@@ -64,42 +69,60 @@ const Dashboard = () => {
         </div>
 
         <button className="bg-black text-white h-fit px-4 py-1 rounded">
-          {" "}
           <span className="text-lg">+</span> New Project
         </button>
       </div>
 
-      {/* cards */}
-      <Cards />
+      {/* 🔥 Cards */}
+      <Cards stats={stats} />
 
+      {/* Tabs */}
       <div className="border border-gray-200 rounded-xl p-2">
         <div>
-          {/* tabs */}
           <div className="bg-gray-100 flex items-center gap-4 px-1 py-2 rounded-lg text-sm">
             <div
               onClick={() => setTab("projects")}
-              className={`px-4 py-2 rounded cursor-pointer ${tab === "projects" ? "bg-white shadow text-black" : " text-gray-400"}`}
+              className={`px-4 py-2 rounded cursor-pointer transition-all ${
+                tab === "projects"
+                  ? "bg-white shadow text-black"
+                  : "text-gray-400"
+              }`}
             >
               Recent Projects
             </div>
+
             <div
               onClick={() => setTab("tasks")}
-              className={`px-4 py-2 rounded cursor-pointer ${tab === "tasks" ? "bg-white shadow text-black" : " text-gray-400"}`}
+              className={`px-4 py-2 rounded cursor-pointer transition-all ${
+                tab === "tasks" ? "bg-white shadow text-black" : "text-gray-400"
+              }`}
             >
               Recent Tasks
             </div>
+
             <div
               onClick={() => setTab("members")}
-              className={`px-4 py-2 rounded cursor-pointer ${tab === "members" ? "bg-white shadow text-black" : "text-gray-400 "}`}
+              className={`px-4 py-2 rounded cursor-pointer transition-all ${
+                tab === "members"
+                  ? "bg-white shadow text-black"
+                  : "text-gray-400"
+              }`}
             >
               Recent Members
             </div>
           </div>
-          {/* list */}
+
+          {/* Lists */}
           <div>
-            {tab === "projects" && <ProjectList />}{" "}
-            {tab === "tasks" && <TaskList />}
-            {tab === "members" && <MemberList />}
+            {tab === "projects" && (
+              <ProjectList projects={projects} isLoading={projectsLoading} />
+            )}
+            {tab === "tasks" && (
+              <TaskList tasks={tasks} isLoading={tasksLoading} />
+            )}
+            {tab === "members" && (
+              <MemberList members={members} isLoading={membersLoading} />
+            )}
           </div>
         </div>
       </div>

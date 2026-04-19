@@ -36,6 +36,7 @@ const Login = () => {
       setUser(res.data.data);
       navigate("/");
     } catch (err) {
+      console.log(err);
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);

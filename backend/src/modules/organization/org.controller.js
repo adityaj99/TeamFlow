@@ -24,7 +24,7 @@ export const getMembersOfOrg = async (req, res, next) => {
         status: "active",
       })
         .populate("user", "name email")
-        .select("user role")
+        .select("user role createdAt")
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
@@ -36,22 +36,12 @@ export const getMembersOfOrg = async (req, res, next) => {
       }),
     ]);
 
-    // const members = await Membership.find({
-    //   organization: req.orgId,
-    //   status: "active",
-    // })
-    //   .populate("user", "name email")
-    //   .select("user role")
-    //   .skip(skip)
-    //   .limit(limit)
-    //   .sort({ createdAt: -1 })
-    //   .lean();
-
     const formatted = members.map((m) => ({
       _id: m.user._id,
       name: m.user.name,
       email: m.user.email,
       role: m.role,
+      createdAt: m.createdAt,
     }));
 
     res.status(200).json({
