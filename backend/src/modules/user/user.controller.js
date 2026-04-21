@@ -46,11 +46,17 @@ const login = async (req, res, next) => {
 
 const getProfile = async (req, res, next) => {
   try {
-    const user = await getProfileService(req.user._id);
+    const { user, membership } = await getProfileService(
+      req.user._id,
+      req.orgId,
+    );
 
     res.status(200).json({
       success: true,
-      data: user,
+      data: {
+        user,
+        membership,
+      },
     });
   } catch (error) {
     next(error);

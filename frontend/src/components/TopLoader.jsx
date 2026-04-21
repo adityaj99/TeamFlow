@@ -11,6 +11,7 @@ const TopLoader = () => {
     if (isFetching) {
       timer = setTimeout(() => setShow(true), 200);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShow(false);
     }
 

@@ -1,18 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
-import Profile from "./pages/Profile";
+import Tasks from "./pages/Tasks";
 
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TopLoader from "./components/TopLoader";
+import Members from "./pages/Members";
+import Settings from "./pages/Settings";
+import AcceptInvite from "./pages/AcceptInvite";
 
 function App() {
   return (
-    <BrowserRouter>
+    <div>
+      <Toaster />
       <TopLoader />
       <Routes>
         {/* 🔐 Auth Routes */}
@@ -33,28 +37,47 @@ function App() {
         />
 
         <Route
-          path="/projects"
+          path="/tasks"
           element={
             <ProtectedRoute>
               <MainLayout>
-                <Projects />
+                <Tasks />
               </MainLayout>
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/profile"
+          path="/members"
           element={
             <ProtectedRoute>
               <MainLayout>
-                <Profile />
+                <Members />
               </MainLayout>
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Settings />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accept-invite"
+          element={
+            <ProtectedRoute>
+              <AcceptInvite />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 }
 

@@ -2,11 +2,15 @@ import { useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { AudioWaveform } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Login = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [params] = useSearchParams();
 
+  const redirect = decodeURIComponent(params.get("redirect") || "/");
   const { setUser } = useAuth();
 
   const [form, setForm] = useState({
@@ -31,12 +35,9 @@ const Login = () => {
 
     try {
       await api.post("/api/auth/login", form);
-
-      const res = await api.get("/api/auth/profile");
-      setUser(res.data.data);
-      navigate("/");
+      await queryClient.invalidateQueries(["authUser"]);
+      navigate(redirect);
     } catch (err) {
-      console.log(err);
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);

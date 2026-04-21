@@ -2,6 +2,7 @@ import crypto from "crypto";
 import Invite from "./invite.model.js";
 import User from "../user/user.model.js";
 import Membership from "../membership/membership.model.js";
+import Organization from "../organization/org.model.js";
 import { sendEmail } from "../../utils/email.js";
 
 export const createInviteService = async ({ email, role, orgId }) => {
@@ -41,7 +42,12 @@ export const createInviteService = async ({ email, role, orgId }) => {
     `,
   });
 
-  return invite;
+  return {
+    id: invite._id,
+    email: invite.email,
+    role: invite.role,
+    status: invite.status,
+  };
 };
 
 export const validateInvite = async (invite) => {
@@ -90,10 +96,19 @@ export const acceptInviteService = async ({ token, userId }) => {
     throw error;
   }
 
+  const org = await Organization.findById(invite.organization);
+
+  if (!org) {
+    const error = new Error("Organization no longer exists");
+    error.status = 400;
+    throw error;
+  }
+
   await Membership.create({
     user: userId,
     organization: invite.organization,
     role: invite.role,
+    status: "active",
   });
 
   invite.status = "accepted";
@@ -121,5 +136,36 @@ export const resendInviteService = async (inviteId) => {
   invite.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
   invite.status = "pending";
   await invite.save();
-  return invite;
+
+  const inviteLink = `${process.env.FRONTEND_URL}/accept-invite?token=${token}`;
+
+  await sendEmail({
+    to: invite.email,
+    subject: "You're invited again to join an organization on TeamFlow",
+    html: `
+      <p>You have been re-invited to join an organization on TeamFlow as a ${role}.</p>
+      <p>Click the link below to accept the invite:</p>
+      <a href="${inviteLink}">Accept Invite</a>
+      <p>This invite will expire in 24 hours.</p>
+    `,
+  });
+
+  return {
+    id: invite._id,
+    email: invite.email,
+    role: invite.role,
+    status: invite.status,
+  };
+};
+
+export const getInviteByTokenService = async (token) => {
+  const invite = await Invite.findOne({ token }).populate("organization");
+
+  await validateInvite(invite);
+
+  return {
+    email: invite.email,
+    role: invite.role,
+    orgName: invite.organization.name,
+  };
 };

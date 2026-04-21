@@ -1,5 +1,10 @@
 import Membership from "../membership/membership.model.js";
-import { createOrganization } from "./org.service.js";
+import Organization from "./org.model.js";
+import {
+  createOrganization,
+  deleteOrgnizationService,
+  updateOrganizationService,
+} from "./org.service.js";
 
 export const createOrg = async (req, res, next) => {
   try {
@@ -17,6 +22,8 @@ export const getMembersOfOrg = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+
+    console.log(page, limit, skip);
 
     const [members, total] = await Promise.all([
       Membership.find({
@@ -53,6 +60,62 @@ export const getMembersOfOrg = async (req, res, next) => {
         limit,
         totalPages: Math.ceil(total / limit),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getActiveOrg = async (req, res, next) => {
+  try {
+    const orgId = req.orgId;
+    const activeOrg = await Organization.findById(orgId);
+
+    if (!activeOrg) {
+      const error = new Error("Organization not found");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: activeOrg,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateOrganization = async (req, res, next) => {
+  try {
+    const { name, description } = req.body;
+
+    const updated = await updateOrganizationService({
+      userId: req.user._id,
+      orgId: req.orgId,
+      name,
+      description,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Organization updated",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteOrgnization = async (req, res, next) => {
+  try {
+    await deleteOrgnizationService({ userId: req.user._id, orgId: req.orgId });
+
+    res.clearCookie("activeOrg");
+
+    res.json({
+      success: true,
+      message: "Organization deleted",
     });
   } catch (error) {
     next(error);

@@ -25,7 +25,6 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Auth Middleware Error:", error);
     next(error);
   }
 };

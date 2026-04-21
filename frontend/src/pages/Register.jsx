@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import { AudioWaveform } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  const redirect = decodeURIComponent(params.get("redirect") || "/");
 
   const [form, setForm] = useState({
     name: "",
@@ -29,9 +32,7 @@ const Register = () => {
 
     try {
       await api.post("/api/auth/register", form);
-
-      // 👉 After register → go to login
-      navigate("/login");
+      navigate(`/login?redirect=${encodeURIComponent(redirect)}`);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {

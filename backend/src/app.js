@@ -68,10 +68,10 @@ app.get(
 
 app.use(
   "/api/auth",
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-  }),
+  // rateLimit({
+  //   windowMs: 15 * 60 * 1000,
+  //   max: 20,
+  // }),
   userRoutes,
 );
 app.use("/api/org", orgRoutes);

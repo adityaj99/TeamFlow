@@ -5,6 +5,7 @@ import { allowRoles } from "../../middlewares/rbac.middleware.js";
 import {
   acceptInvite,
   createInvite,
+  getInviteByToken,
   resendInvite,
 } from "./invite.controller.js";
 
@@ -27,5 +28,7 @@ router.post(
   allowRoles("owner", "admin"),
   resendInvite,
 );
+
+router.get("/:token", getInviteByToken);
 
 export default router;

@@ -1,5 +1,6 @@
 import { generateToken } from "../../utils/generateToken.js";
 import { comparePassword, hashPassword } from "../../utils/hashPassword.js";
+import Membership from "../membership/membership.model.js";
 import User from "./user.model.js";
 
 const registerUser = async ({ name, email, password }) => {
@@ -44,8 +45,8 @@ const loginUser = async ({ email, password }) => {
   return { token };
 };
 
-const getProfileService = async (userId) => {
-  const user = await User.findById(userId).select("-password");
+const getProfileService = async (userId, orgId) => {
+  const user = await User.findById(userId).select("-password").lean();
 
   if (!user) {
     const error = new Error("User not found");
@@ -53,7 +54,19 @@ const getProfileService = async (userId) => {
     throw error;
   }
 
-  return user;
+  let membership = null;
+
+  if (orgId) {
+    membership = await Membership.findOne({
+      user: userId,
+      organization: orgId,
+      status: "active",
+    })
+      .select("role organization")
+      .lean();
+  }
+
+  return { user, membership };
 };
 
 const updateUserProfileService = async (userId, data) => {

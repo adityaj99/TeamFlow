@@ -11,3 +11,14 @@ export const useOrgs = () => {
     staleTime: 1000 * 60 * 5,
   });
 };
+
+export const useCurrentOrg = () => {
+  return useQuery({
+    queryKey: ["currentOrg"],
+    queryFn: async () => {
+      const res = await api.get("/api/org/current");
+      return res.data.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};

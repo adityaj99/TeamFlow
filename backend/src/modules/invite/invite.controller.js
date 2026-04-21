@@ -1,6 +1,7 @@
 import {
   acceptInviteService,
   createInviteService,
+  getInviteByTokenService,
   resendInviteService,
 } from "./invite.service.js";
 
@@ -54,6 +55,19 @@ export const resendInvite = async (req, res, next) => {
       data: {
         token: invite.token,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getInviteByToken = async (req, res, next) => {
+  try {
+    const data = await getInviteByTokenService(req.params.token);
+
+    res.json({
+      success: true,
+      data,
     });
   } catch (error) {
     next(error);

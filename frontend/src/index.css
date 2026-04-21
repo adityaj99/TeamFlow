@@ -31,12 +31,17 @@ body {
   font-size: 14px;
 }
 
-/* Hide scrollbar but keep scrolling */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE & Edge */
-  scrollbar-width: none; /* Firefox */
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
 }

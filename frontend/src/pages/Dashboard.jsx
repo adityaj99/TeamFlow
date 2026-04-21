@@ -25,7 +25,7 @@ const Dashboard = () => {
     { limit: 10 },
     { enabled: tab === "tasks" },
   );
-  const { data: members = [], isLoading: membersLoading } = useMembers(
+  const { data, isLoading: membersLoading } = useMembers(
     {
       limit: 10,
     },
@@ -34,8 +34,10 @@ const Dashboard = () => {
   const {
     data: stats,
     error: statsError,
-    isLoading: orgLoading,
+    isLoading: statsLoading,
   } = useStats({ scope: "org" });
+
+  const members = data?.data || [];
 
   // 🔥 detect no org
   const noOrg =
@@ -74,7 +76,7 @@ const Dashboard = () => {
       </div>
 
       {/* 🔥 Cards */}
-      <Cards stats={stats} />
+      <Cards stats={stats} isLoading={statsLoading} />
 
       {/* Tabs */}
       <div className="border border-gray-200 rounded-xl p-2">

@@ -6,7 +6,7 @@ export const useMembers = (params = {}, options = {}) => {
     queryKey: ["members", params],
     queryFn: async () => {
       const res = await api.get("/api/org/members", { params });
-      return res.data.data;
+      return res.data;
     },
     keepPreviousData: true,
     ...options,
