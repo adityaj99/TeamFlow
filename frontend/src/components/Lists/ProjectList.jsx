@@ -1,5 +1,6 @@
 import React from "react";
 import dateFormat from "../../utils/dateFormat";
+import { getAvatar } from "../../utils/getAvatar";
 
 const ProjectList = ({ projects = [], isLoading }) => {
   if (isLoading)
@@ -32,9 +33,16 @@ const ProjectList = ({ projects = [], isLoading }) => {
                 <p className="text-gray-400">{dateFormat(project.createdAt)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-2">
               <p className="text-gray-400">Created by</p>
-              <p>{project.createdBy.name}</p>
+              <img
+                className="w-9 h-9 rounded-full object-cover"
+                src={getAvatar(project.createdBy)}
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=User&background=random`;
+                }}
+                alt="avatar"
+              />
             </div>
           </div>
         ))

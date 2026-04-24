@@ -44,6 +44,24 @@ const login = async (req, res, next) => {
   }
 };
 
+const logout = async (req, res) => {
+  res.cookie("tf_token", "", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    expires: new Date(0),
+  });
+
+  res.cookie("activeOrg", "", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    expires: new Date(0),
+  });
+
+  res.status(200).json({ success: true, message: "Logout successful" });
+};
+
 const getProfile = async (req, res, next) => {
   try {
     const { user, membership } = await getProfileService(
@@ -80,4 +98,4 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-export { register, login, getProfile, updateProfile };
+export { register, login, logout, getProfile, updateProfile };

@@ -30,7 +30,7 @@ export const getMembersOfOrg = async (req, res, next) => {
         organization: req.orgId,
         status: "active",
       })
-        .populate("user", "name email")
+        .populate("user", "name email avatar")
         .select("user role createdAt")
         .skip(skip)
         .limit(limit)
@@ -47,6 +47,7 @@ export const getMembersOfOrg = async (req, res, next) => {
       _id: m.user._id,
       name: m.user.name,
       email: m.user.email,
+      avatar: m.user.avatar,
       role: m.role,
       createdAt: m.createdAt,
     }));

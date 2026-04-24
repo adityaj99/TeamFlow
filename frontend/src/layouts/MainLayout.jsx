@@ -8,7 +8,7 @@ const MainLayout = ({ children }) => {
       <Sidebar />
 
       {/* Main */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-68">
         {/* Navbar */}
         <Navbar />
 

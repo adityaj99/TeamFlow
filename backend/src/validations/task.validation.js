@@ -5,6 +5,15 @@ export const createTaskSchema = z.object({
   description: z.string().optional(),
   project: z.string(),
   assignedTo: z.string().optional(),
+  dueDate: z.iso
+    .datetime()
+    .optional()
+    .or(z.string().optional())
+    .or(z.undefined()),
+  status: z
+    .enum(["todo", "in_progress", "submitted", "approved", "rejected"])
+    .optional(),
+  priority: z.enum(["low", "medium", "high"]).optional(),
 });
 
 export const updateTaskStatusSchema = z.object({

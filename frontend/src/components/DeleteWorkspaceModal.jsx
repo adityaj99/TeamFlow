@@ -23,7 +23,7 @@ const DeleteWorkspaceModal = ({ orgName }) => {
   };
 
   return (
-    <div className="w-[380px] space-y-5 animate-fadeIn">
+    <div className="w-95 space-y-5 animate-fadeIn">
       {/* 🔥 Header */}
       <div className="flex items-center gap-3">
         <div className="bg-red-100 text-red-500 p-2 rounded-full">
@@ -53,7 +53,6 @@ const DeleteWorkspaceModal = ({ orgName }) => {
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           className="w-full border border-gray-200 p-2 rounded focus:outline-none focus:ring-2 focus:ring-red-400"
-          placeholder="Enter workspace name"
         />
       </div>
 
@@ -69,7 +68,7 @@ const DeleteWorkspaceModal = ({ orgName }) => {
         <button
           onClick={handleDelete}
           disabled={confirmText !== "DELETE" || isPending}
-          className={`px-4 py-2 rounded bg-red-500 text-white disabled:opacity-50 hover:bg-red-600 transition ${confirmText !== "DELETE" ? "cursor-not-allowed" : "cursor-pointer"} `}
+          className={`px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:opacity-90 ${confirmText !== "DELETE" ? "cursor-not-allowed" : "cursor-pointer"}  `}
         >
           {isPending ? "Deleting..." : "Delete"}
         </button>

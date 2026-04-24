@@ -3,7 +3,7 @@ import api from "../axios";
 
 export const useMembers = (params = {}, options = {}) => {
   return useQuery({
-    queryKey: ["members", params],
+    queryKey: ["members", params?.limit],
     queryFn: async () => {
       const res = await api.get("/api/org/members", { params });
       return res.data;

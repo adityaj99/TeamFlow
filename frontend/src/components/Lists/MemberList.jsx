@@ -1,5 +1,6 @@
 import React from "react";
 import dateFormat from "../../utils/dateFormat";
+import { getAvatar } from "../../utils/getAvatar";
 
 const MemberList = ({ members = [], isLoading }) => {
   if (isLoading)
@@ -33,7 +34,15 @@ const MemberList = ({ members = [], isLoading }) => {
             className="flex justify-between p-2 border border-gray-200 rounded-lg"
           >
             <div className="flex gap-2 w-[87%]">
-              <div className="h-9 w-9 rounded-full bg-blue-400"></div>
+              <img
+                className="w-9 h-9 rounded-full object-cover"
+                src={getAvatar(member)}
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=User&background=random`;
+                }}
+                alt="avatar"
+              />
+
               <div className="flex flex-col">
                 <p>{member.name}</p>
                 <p className="text-gray-400 uppercase">{member.role}</p>

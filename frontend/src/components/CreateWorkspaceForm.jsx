@@ -86,7 +86,7 @@ const CreateWorkspaceForm = () => {
           {isPending ? "Creating..." : "Create Workspace"}
         </button>
       </form>
-      <div className="w-1/2 h-110 bg-amber-300">
+      <div className="w-1/2 h-110 bg-gray-100">
         <img className="w-full h-full object-cover" src={workspace} alt="" />
       </div>
     </div>

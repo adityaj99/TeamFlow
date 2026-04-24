@@ -1,5 +1,10 @@
 import { createProjectSchema } from "../../validations/project.validation.js";
-import { createProjectService, getProjectsService } from "./project.service.js";
+import {
+  createProjectService,
+  deleteProjectService,
+  getProjectByIdService,
+  getProjectsService,
+} from "./project.service.js";
 
 export const createProject = async (req, res, next) => {
   try {
@@ -26,6 +31,34 @@ export const getProjects = async (req, res, next) => {
       success: true,
       data: result.projects,
       pagination: result.pagination,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProjectById = async (req, res, next) => {
+  try {
+    const project = await getProjectByIdService(req.orgId, req.params.id);
+    res.status(200).json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProject = async (req, res, next) => {
+  try {
+    await deleteProjectService(req.params.id, {
+      _id: req.user._id,
+      role: req.role,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Project deleted",
     });
   } catch (error) {
     next(error);

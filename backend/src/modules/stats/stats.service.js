@@ -18,25 +18,25 @@ export const getStatsService = async ({ scope, projectId, orgId }) => {
       error.status = 400;
       throw error;
     }
-    filter.prohect = projectId;
+    filter.project = projectId;
   }
 
   const totalTasks = await Task.countDocuments(filter);
 
   const completedTasks = await Task.countDocuments({
     ...filter,
-    status: "completed",
+    status: { $in: ["approved", "submitted"] },
   });
 
   const pendingTasks = await Task.countDocuments({
     ...filter,
-    status: "pending",
+    status: { $in: ["todo", "in_progress", "rejected"] },
   });
 
   const overdueTasks = await Task.countDocuments({
     ...filter,
     dueDate: { $lt: new Date() },
-    status: { $ne: "completed" },
+    status: { $ne: "submitted" },
   });
 
   return {

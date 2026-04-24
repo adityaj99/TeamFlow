@@ -3,19 +3,32 @@ import { useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const location = useLocation();
+
+  let filterLocation;
+
+  if (location.pathname === "/") {
+    filterLocation = "/";
+  } else {
+    filterLocation = location.pathname.split("/")[1];
+  }
+
   return (
-    <header className="flex gap-4 items-center p-4 shadow-sm border-b border-gray-200 bg-white">
+    <header className="flex sticky top-0 gap-4 items-center p-4 shadow-sm border-b border-gray-200 bg-white">
       <div className="w-10 border-r border-gray-200">
         <PanelLeft size={20} />
       </div>
       <p className="font-semibold">
-        {location.pathname === "/"
+        {filterLocation === "/"
           ? "Dashboard"
-          : location.pathname === "/tasks"
+          : filterLocation === "tasks"
             ? "Task"
-            : location.pathname === "/members"
+            : filterLocation === "members"
               ? "Member"
-              : "Settings"}
+              : filterLocation === "profile"
+                ? "Profile"
+                : filterLocation === "project"
+                  ? "Project"
+                  : "Settings"}
       </p>
     </header>
   );

@@ -12,6 +12,8 @@ import TopLoader from "./components/TopLoader";
 import Members from "./pages/Members";
 import Settings from "./pages/Settings";
 import AcceptInvite from "./pages/AcceptInvite";
+import Profile from "./pages/Profile";
+import Project from "./pages/Project";
 
 function App() {
   return (
@@ -68,11 +70,34 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/project/:projectId"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Project />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/accept-invite"
           element={
             <ProtectedRoute>
               <AcceptInvite />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Profile />
+              </MainLayout>
             </ProtectedRoute>
           }
         />

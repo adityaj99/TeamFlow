@@ -74,6 +74,8 @@ const updateUserProfileService = async (userId, data) => {
     returnDocument: "after",
   }).select("-password");
 
+  console.log("User", user);
+
   if (!user) {
     const error = new Error("User not found");
     error.status = 404;

@@ -153,7 +153,7 @@ const Settings = () => {
 
   return (
     <div>
-      <div className="flex items-center gap-4 border-b border-gray-200 pb-4 mb-2 px-4 md:px-40">
+      <div className="flex items-center gap-4 border-b border-gray-200 pb-4 mb-2 px-40">
         <span className="flex items-center justify-center h-14 w-14 rounded-md bg-black text-white text-3xl font-bold">
           {currentOrg?.name?.charAt(0)}
         </span>

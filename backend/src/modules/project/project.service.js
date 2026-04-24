@@ -1,4 +1,5 @@
 import Project from "./project.model.js";
+import Task from "../task/task.model.js";
 import { createAuditLog } from "../audit/audit.service.js";
 
 export const createProjectService = async (
@@ -42,7 +43,7 @@ export const getProjectsService = async (orgId, query) => {
   }
 
   const projects = await Project.find(filter)
-    .populate("createdBy", "name")
+    .populate("createdBy", "name avatar")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 });
@@ -58,4 +59,52 @@ export const getProjectsService = async (orgId, query) => {
       totalPages: Math.ceil(total / limit),
     },
   };
+};
+
+export const getProjectByIdService = async (orgId, projectId) => {
+  const project = await Project.findOne({
+    _id: projectId,
+    organization: orgId,
+    status: "active",
+  }).populate("createdBy", "name avatar");
+
+  if (!project) {
+    const error = new Error("Project not found");
+    error.status = 404;
+    throw error;
+  }
+
+  return project;
+};
+
+export const deleteProjectService = async (projectId, user) => {
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    const error = new Error("Project not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const isAdmin = ["owner", "admin"].includes(user.role);
+
+  if (!isAdmin) {
+    const error = new Error("Not allowed to delete project");
+    error.status = 403;
+    throw error;
+  }
+
+  await Task.deleteMany({ project: projectId });
+
+  await project.deleteOne();
+
+  await createAuditLog({
+    action: "DELETE_PROJECT",
+    userId: user._id,
+    orgId: project.organization,
+    targetId: project._id,
+    targetType: "Project",
+  });
+
+  return true;
 };

@@ -7,7 +7,7 @@ import api from "../axios";
 
 export const useProjects = (params = {}, options = {}) => {
   return useQuery({
-    queryKey: ["projects", params],
+    queryKey: ["projects", params?.limit],
     queryFn: async () => {
       const res = await api.get("/api/project", { params });
       return res.data.data;
@@ -23,7 +23,7 @@ export const useInfiniteProjects = () => {
   return useInfiniteQuery({
     queryKey: ["projects"],
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await api.get(`/api/project?page=${pageParam}&limit=5`);
+      const res = await api.get(`/api/project?page=${pageParam}&limit=9`);
       return res.data;
     },
     getNextPageParam: (lastPage) => {
@@ -33,20 +33,29 @@ export const useInfiniteProjects = () => {
 
     // 🔥 keeps UI stable while fetching next pages
     keepPreviousData: true,
+  });
+};
 
-    // 🔥 small prefetch (optional but nice)
-    onSuccess: (data) => {
-      const last = data.pages[data.pages.length - 1];
-      const next = last?.pagination?.page + 1;
-      const total = last?.pagination?.totalPages;
+export const useProject = (projectId, options = {}) => {
+  const queryClient = useQueryClient();
 
-      if (next && next <= total) {
-        queryClient.prefetchQuery({
-          queryKey: ["projects", next],
-          queryFn: () =>
-            api.get(`/api/project?page=${next}&limit=5`).then((r) => r.data),
-        });
+  return useQuery({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const projects =
+        queryClient
+          .getQueryData(["projects"])
+          .pages?.flatMap((page) => page.data) || [];
+
+      const cachedProject = projects?.find((p) => p._id === projectId);
+      if (cachedProject) {
+        return cachedProject;
       }
+
+      const res = await api.get(`/api/project/${projectId}`);
+      return res.data.data;
     },
+    enabled: !!projectId,
+    ...options,
   });
 };

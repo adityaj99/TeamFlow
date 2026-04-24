@@ -2,6 +2,14 @@ import { createAuditLog } from "../audit/audit.service.js";
 import { createNotifcationService } from "../notification/notification.service.js";
 import Task from "./task.model.js";
 
+const transitions = {
+  todo: ["in_progress"],
+  in_progress: ["submitted"],
+  submitted: ["approved", "rejected", "in_progress"], // admin only
+  approved: [],
+  rejected: ["in_progress"], // optional
+};
+
 export const createTaskService = async (userId, orgId, data) => {
   const task = await Task.create({
     ...data,
@@ -37,17 +45,33 @@ export const getTasksService = async (orgId, query) => {
     filter.status = query.status;
   }
 
-  if (query.q) {
+  if (query.priority) {
+    filter.priority = query.priority;
+  }
+
+  if (query.search) {
     filter.$or = [
-      { title: { $regex: query.q, $options: "i" } },
-      { description: { $regex: query.q, $options: "i" } },
+      { title: { $regex: query.search, $options: "i" } },
+      { description: { $regex: query.search, $options: "i" } },
     ];
   }
 
-  const tasks = await Task.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+  let tasks;
+
+  if (query.projectId) {
+    tasks = await Task.find(filter)
+      .populate("assignedTo", "name email avatar")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+  } else {
+    tasks = await Task.find(filter)
+      .populate("assignedTo", "name email avatar")
+      .populate("project", "name")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+  }
 
   const total = await Task.countDocuments(filter);
 
@@ -73,15 +97,39 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
 
   const { status, submission } = updateData;
 
-  if (!["approved", "rejected"].includes(status)) {
-    if (task.assignedTo?.toString() !== user._id.toString()) {
-      const error = new Error("Not allowed to update status");
-      error.status = 403;
-      throw error;
-    }
+  const currentStatus = task.status;
+  const nextStatus = status;
+
+  const isAdmin = ["admin", "owner", "manager"].includes(user.role);
+  const isAssigned = task.assignedTo?.toString() === user._id.toString();
+
+  if (!isAdmin && !isAssigned) {
+    const error = new Error("Not allowed to update task");
+    error.status = 403;
+    throw error;
   }
 
-  if (status === "submitted") {
+  if (status === currentStatus) {
+    return task;
+  }
+
+  const allowedTransitions = transitions[currentStatus] || [];
+
+  if (!allowedTransitions.includes(nextStatus)) {
+    const error = new Error(
+      `Invalid status transition from ${currentStatus} to ${nextStatus}`,
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  if (!isAdmin && currentStatus === "submitted") {
+    const error = new Error("Task already submitted. Cannot modify.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (nextStatus === "submitted") {
     if (
       !submission?.note &&
       (!submission?.attachments || submission.attachments.length === 0)
@@ -98,22 +146,63 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
     };
   }
 
-  if (["approved", "rejected"].includes(status)) {
-    if (!["admin", "owner", "manager"].includes(user.role)) {
+  if (["approved", "rejected"].includes(nextStatus)) {
+    if (!isAdmin) {
       const error = new Error("Not allowed to approve/reject");
       error.status = 403;
       throw error;
     }
 
-    if (task.status !== "submitted") {
+    if (currentStatus !== "submitted") {
       const error = new Error("Task must be submitted before approval");
       error.status = 400;
       throw error;
     }
   }
 
-  task.status = status;
+  task.status = nextStatus;
 
+  await task.save();
+
+  await createAuditLog({
+    action: "UPDATE_STATUS",
+    userId: user._id,
+    orgId: task.organization,
+    targetId: task._id,
+    targetType: "Task",
+    metadata: {
+      from: currentStatus,
+      to: nextStatus,
+    },
+  });
+
+  return task;
+};
+
+export const updateTaskService = async (taskId, user, data) => {
+  const task = await Task.findById(taskId);
+
+  if (data.status) {
+    const error = new Error("Status cannot be updated via this endpoint");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!task) {
+    const error = new Error("Task not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const isAdmin = ["admin", "owner", "manager"].includes(user.role);
+
+  if (!isAdmin) {
+    const error = new Error("Not allowed to update task");
+    error.status = 403;
+    throw error;
+  }
+
+  Object.assign(task, data);
   await task.save();
 
   await createAuditLog({
@@ -123,9 +212,39 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
     targetId: task._id,
     targetType: "Task",
     metadata: {
-      newStatus: task.status,
+      updatedFields: Object.keys(data),
     },
   });
 
   return task;
+};
+
+export const deleteTaskService = async (taskId, user) => {
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    const error = new Error("Task not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const isAdmin = ["owner", "manager", "admin"].includes(user.role);
+
+  if (!isAdmin) {
+    const error = new Error("Not allowed to delete this task");
+    error.status = 403;
+    throw error;
+  }
+
+  await task.deleteOne();
+
+  await createAuditLog({
+    action: "Delete_Task",
+    userId: user._id,
+    orgId: task.organization,
+    targetId: task._id,
+    targetType: "Task",
+  });
+
+  return true;
 };

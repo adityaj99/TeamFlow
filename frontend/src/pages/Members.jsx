@@ -233,6 +233,7 @@ import { useSendInvite } from "../api/mutations/invite.mutation";
 import { useUpdateRole } from "../api/mutations/membership.mutation";
 import { useAuth } from "../api/queries/auth.query";
 import { useCurrentOrg } from "../api/queries/org.query";
+import { getAvatar } from "../utils/getAvatar";
 
 const Members = () => {
   const queryClient = useQueryClient();
@@ -244,7 +245,7 @@ const Members = () => {
   // Fetching members via TanStack Query
   const { data, isLoading } = useMembers({
     page,
-    limit: 2,
+    limit: 10,
   });
 
   const { mutate: sendInvite, isPending } = useSendInvite();
@@ -307,7 +308,9 @@ const Members = () => {
         </span>
         <span className="flex flex-col">
           <span className="text-xl font-semibold">{currentOrg?.name}</span>
-          <span className="text-gray-400">Workspace</span>
+          <span className="text-gray-400">
+            {currentOrg?.isActive ? "Active" : "Inactive"}
+          </span>
         </span>
       </div>
 
@@ -378,7 +381,14 @@ const Members = () => {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 bg-black rounded-full"></div>
+                      <img
+                        className="w-9 h-9 rounded-full object-cover"
+                        src={getAvatar(member)}
+                        onError={(e) => {
+                          e.target.src = `https://ui-avatars.com/api/?name=User&background=random`;
+                        }}
+                        alt="avatar"
+                      />
                       <div className="flex flex-col justify-center">
                         <p className="font-semibold text-sm">{member.name}</p>
                         <p className="text-gray-400 text-xs">{member.email}</p>

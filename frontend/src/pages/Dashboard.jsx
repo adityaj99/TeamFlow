@@ -4,27 +4,33 @@ import Cards from "../components/Cards";
 import ProjectList from "../components/Lists/ProjectList";
 import TaskList from "../components/Lists/TaskList";
 import MemberList from "../components/Lists/MemberList";
+import { useModal } from "../context/ModalContext";
 
 // 🔥 queries
 import { useProjects } from "../api/queries/project.query";
 import { useTasks } from "../api/queries/task.query";
 import { useMembers } from "../api/queries/member.query";
 import { useStats } from "../api/queries/stats.query";
+import CreateProjectForm from "../components/CreateProjectForm";
+import CreateTaskForm from "../components/CreateTaskForm";
 
 const Dashboard = () => {
   const [tab, setTab] = useState("projects");
 
-  // 🔥 queries (parallel fetching)
-  const {
-    data: projects = [],
-    isLoading: projectsLoading,
-    error: projectsError,
-  } = useProjects({ limit: 10 }, { enabled: tab === "projects" });
+  const { openModal } = useModal();
 
-  const { data: tasks = [], isLoading: tasksLoading } = useTasks(
+  const { data: projects = [], isLoading: projectsLoading } = useProjects(
+    { limit: 10 },
+    { enabled: tab === "projects" },
+  );
+
+  const { data: tasksData = {}, isLoading: tasksLoading } = useTasks(
     { limit: 10 },
     { enabled: tab === "tasks" },
   );
+
+  const tasks = tasksData?.data || [];
+
   const { data, isLoading: membersLoading } = useMembers(
     {
       limit: 10,
@@ -39,7 +45,6 @@ const Dashboard = () => {
 
   const members = data?.data || [];
 
-  // 🔥 detect no org
   const noOrg =
     statsError?.response?.status === 400 ||
     statsError?.response?.status === 401;
@@ -70,7 +75,10 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <button className="bg-black text-white h-fit px-4 py-1 rounded">
+        <button
+          onClick={() => openModal(<CreateProjectForm />)}
+          className="bg-black text-white h-fit px-4 py-1 rounded hover:bg-gray-900 cursor-pointer transition"
+        >
           <span className="text-lg">+</span> New Project
         </button>
       </div>

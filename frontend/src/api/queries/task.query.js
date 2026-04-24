@@ -1,14 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../axios";
 
-export const useTasks = (params = {}, options = {}) => {
+export const useTasks = (filters = {}, options = {}) => {
   return useQuery({
-    queryKey: ["tasks", params],
+    queryKey: [
+      "tasks",
+      filters.search,
+      filters.status,
+      filters.priority,
+      filters.page,
+      filters.projectId,
+    ],
     queryFn: async () => {
-      const res = await api.get("/api/task", { params });
-      return res.data.data;
+      const res = await api.get("/api/task", { params: filters });
+      return res.data;
     },
     keepPreviousData: true,
+    staleTime: 1000 * 60 * 2,
     ...options,
   });
 };

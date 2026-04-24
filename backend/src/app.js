@@ -14,6 +14,7 @@ import commentRoutes from "./modules/comment/comment.routes.js";
 import notificationRoutes from "./modules/notification/notification.routes.js";
 import uploadRoutes from "./modules/upload/upload.routes.js";
 import statsRoutes from "./modules/stats/stats.routes.js";
+import auditRoutes from "./modules/audit/audit.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
@@ -31,7 +32,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use(limiter);
+// app.use(limiter);
 
 app.get("/", (req, res) => {
   res.send("Teamflow is running!");
@@ -83,7 +84,7 @@ app.use("/api/comment", commentRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/stats", statsRoutes);
-
+app.use("/api/audit", auditRoutes);
 app.use(errorHandler);
 
 export default app;

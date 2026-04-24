@@ -18,6 +18,7 @@ import { useSelectOrg } from "../api/mutations/org.mutation";
 import { useModal } from "../context/ModalContext";
 import CreateWorkspaceForm from "./CreateWorkspaceForm";
 import { useAuth } from "../api/queries/auth.query";
+import SidebarUserMenu from "./SiderbarUserMenu";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -59,7 +60,7 @@ const Sidebar = () => {
   }, [workspacePop]);
 
   return (
-    <aside className="w-68 flex flex-col bg-[#FAFBFB] border-r border-gray-200 p-4 h-screen relative shadow">
+    <aside className="w-68 flex flex-col bg-[#FAFBFB] border-r border-gray-200 p-4 fixed h-screen shadow">
       {/* Logo */}
       <div className="flex gap-2 items-center h-9">
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-black text-white">
@@ -96,7 +97,9 @@ const Sidebar = () => {
                 <span className="font-semibold">
                   {currentOrg?.name || "Select Workspace"}
                 </span>
-                <span className="text-gray-400 text-xs">Workspace</span>
+                <span className="text-gray-400 text-xs">
+                  {currentOrg?.isActive ? "Active" : "Inactive"}
+                </span>
               </span>
             </div>
             <ChevronDown
@@ -197,20 +200,7 @@ const Sidebar = () => {
       <SidebarProjectsList />
 
       {/* Profile */}
-      <div className="flex items-center justify-between mt-auto pt-4">
-        <div className="flex gap-2 items-start min-w-0">
-          <div className="h-8 w-8 rounded-full bg-black shrink-0"></div>
-
-          <div className="flex flex-col min-w-0">
-            <p className="text-sm font-medium">{currentUser?.name}</p>
-            <p className="text-xs text-gray-400 truncate">
-              {currentUser?.email}
-            </p>
-          </div>
-        </div>
-
-        <EllipsisIcon size={16} />
-      </div>
+      <SidebarUserMenu currentUser={currentUser} />
     </aside>
   );
 };

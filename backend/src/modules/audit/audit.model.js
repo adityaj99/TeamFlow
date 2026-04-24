@@ -29,6 +29,10 @@ const auditSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+auditSchema.index({ organization: 1 });
+auditSchema.index({ targetId: 1, targetType: 1 });
+auditSchema.index({ createdAt: -1 });
+
 const Audit = mongoose.model("Audit", auditSchema);
 
 export default Audit;
