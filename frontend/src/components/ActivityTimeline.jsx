@@ -3,10 +3,8 @@ import { useInfiniteAudits } from "../api/queries/audit.query";
 import { History } from "lucide-react";
 
 const ActivityTimeline = ({ targetId, targetType }) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } =
     useInfiniteAudits({ targetId, targetType });
-
-  console.log("Audit Logs:", data);
 
   // 🔥 flatten pages
   const logs = data?.pages?.flatMap((page) => page.data) || [];
@@ -14,8 +12,6 @@ const ActivityTimeline = ({ targetId, targetType }) => {
   const isEmpty = logs.length === 0;
 
   const grouped = groupByDate(logs);
-
-  console.log("Grouped Logs:", grouped);
 
   const formatAction = (log) => {
     switch (log.action) {
@@ -32,6 +28,19 @@ const ActivityTimeline = ({ targetId, targetType }) => {
         return log.action.toLowerCase();
     }
   };
+
+  if (isFetching) {
+    return (
+      <div className="space-y-4 px-4">
+        {[...Array(5)].map((_, indx) => (
+          <div key={indx} className="flex flex-col gap-2 w-full">
+            <div className="w-100 h-3 bg-gray-200 rounded-2xl animate-pulse"></div>
+            <div className="w-20 h-3 bg-gray-200 rounded-2xl animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (isEmpty) {
     return (

@@ -1,3 +1,4 @@
+import Notification from "./notification.model.js";
 import { getNotificationsService } from "./notification.service.js";
 
 export const getNotification = async (req, res, next) => {
@@ -7,6 +8,19 @@ export const getNotification = async (req, res, next) => {
       success: true,
       data: notifications,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const markAsRead = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    await Notification.updateMany(
+      { user: userId, isRead: false },
+      { isRead: true },
+    );
   } catch (error) {
     next(error);
   }

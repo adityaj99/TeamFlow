@@ -1,5 +1,6 @@
 import { createAuditLog } from "../audit/audit.service.js";
 import { createNotifcationService } from "../notification/notification.service.js";
+import User from "../user/user.model.js";
 import Task from "./task.model.js";
 
 const transitions = {
@@ -68,6 +69,7 @@ export const getTasksService = async (orgId, query) => {
     tasks = await Task.find(filter)
       .populate("assignedTo", "name email avatar")
       .populate("project", "name")
+      .populate("createdBy", "name avatar")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -164,6 +166,38 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
 
   await task.save();
 
+  const u = await User.findById(user._id).select("name");
+
+  if (status === "submitted") {
+    await createNotifcationService({
+      userId: task.createdBy,
+      orgId: task.organization,
+      type: "TASK_SUBMITTED",
+      message: `${u.name} submitted task ${task.title}`,
+      relatedId: task._id,
+    });
+  }
+
+  if (status === "approved") {
+    await createNotifcationService({
+      userId: task.assignedTo,
+      orgId: task.organization,
+      type: "TASK_APPROVED",
+      message: `Your task ${task.title} was approved`,
+      relatedId: task._id,
+    });
+  }
+
+  if (status === "rejected") {
+    await createNotifcationService({
+      userId: task.assignedTo,
+      orgId: task.organization,
+      type: "TASK_REJECTED",
+      message: `Your task ${task.title} was rejected`,
+      relatedId: task._id,
+    });
+  }
+
   await createAuditLog({
     action: "UPDATE_STATUS",
     userId: user._id,
@@ -182,7 +216,9 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
 export const updateTaskService = async (taskId, user, data) => {
   const task = await Task.findById(taskId);
 
-  if (data.status) {
+  console.log(data);
+
+  if (data.status !== task.status) {
     const error = new Error("Status cannot be updated via this endpoint");
     error.status = 400;
     throw error;
@@ -204,6 +240,18 @@ export const updateTaskService = async (taskId, user, data) => {
 
   Object.assign(task, data);
   await task.save();
+
+  if (data.title || data.dueDate || data.priority) {
+    if (task.assignedTo) {
+      await createNotifcationService({
+        userId: task.assignedTo,
+        orgId: task.organization,
+        type: "TASK_ASSIGNED",
+        message: `Task ${task.title} has been updated`,
+        relatedId: task._id,
+      });
+    }
+  }
 
   await createAuditLog({
     action: "UPDATE_TASK",

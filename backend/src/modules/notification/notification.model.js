@@ -14,7 +14,13 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["TASK_ASSIGNED", "TASK_SUBMITTED", "TASK_APPROVED", "INVITE_SENT"],
+      enum: [
+        "TASK_ASSIGNED",
+        "TASK_SUBMITTED",
+        "TASK_REJECTED",
+        "TASK_APPROVED",
+        "INVITE_SENT",
+      ],
       required: true,
     },
     message: {

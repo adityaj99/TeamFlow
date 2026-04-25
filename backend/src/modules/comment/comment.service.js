@@ -11,7 +11,15 @@ export const createCommentService = async (userId, orgId, data) => {
 
 export const getCommentsService = async (taskId) => {
   const comments = await Comment.find({ task: taskId, parentComment: null })
-    .populate("user", "name email")
+    .populate("user", "name email avatar")
     .lean();
   return comments;
+};
+
+export const getRepliesService = async (commentId) => {
+  const replies = await Comment.find({ parentComment: commentId })
+    .populate("user", "name email avatar")
+    .lean();
+
+  return replies;
 };

@@ -20,7 +20,6 @@ const SidebarProjectsList = () => {
 
   const location = useLocation();
 
-  console.log(location.pathname.split("/")[2]);
   const currentOpenProject = location.pathname.split("/")[2];
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =

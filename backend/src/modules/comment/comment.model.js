@@ -33,8 +33,7 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-commentSchema.index({ task: 1 });
-commentSchema.index({ parentComment: 1 });
+commentSchema.index({ task: 1, parentComment: 1 });
 
 const Comment = mongoose.model("Comment", commentSchema);
 

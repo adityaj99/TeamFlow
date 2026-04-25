@@ -12,6 +12,7 @@ import {
   Circle,
   CircleCheckBig,
   Ellipsis,
+  Info,
   Pencil,
   Timer,
   Trash2,
@@ -22,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import CreateTaskForm from "./CreateTaskForm";
 import TaskActivityModal from "./TaskActivityModal";
 import DeleteTaskModal from "./DeleteTaskModal";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 const TaskRow = ({ task, scope }) => {
   const { mutate: updateTask } = useUpdateTaskStatus();
@@ -201,55 +203,56 @@ const TaskRow = ({ task, scope }) => {
       </td>
 
       {/* ACTION */}
-      {isAdmin && (
-        <td
-          className="relative px-4 py-3 w-[5%] text-gray-400 cursor-pointer text-center"
-          ref={menuRef}
+
+      <td
+        className="relative px-4 py-3 w-[5%] text-gray-400 cursor-pointer text-center"
+        ref={menuRef}
+      >
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="p-1 rounded hover:bg-gray-100"
         >
-          <button
-            onClick={() => setOpen((prev) => !prev)}
-            className="p-1 rounded hover:bg-gray-100"
-          >
-            <Ellipsis size={16} />
-          </button>
+          <Ellipsis size={16} />
+        </button>
 
-          {open && (
-            <div className="absolute right-12 top-0 w-36 bg-white border border-gray-200 rounded shadow-md z-50">
-              <button
-                onClick={() =>
-                  openModal(<TaskActivityModal taskId={task._id} />)
-                }
-                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
-              >
-                <Activity size={14} />
-                Activity
-              </button>
+        {open && (
+          <div className="absolute right-12 top-0 w-36 bg-white border border-gray-200 rounded shadow-md z-50">
+            <button
+              onClick={() => openModal(<TaskDetailsModal task={task} />)}
+              className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
+            >
+              <Info size={14} />
+              Details
+            </button>
 
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  openModal(<CreateTaskForm editTask={task} />);
-                }}
-                className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
-              >
-                <Pencil size={14} />
-                Edit
-              </button>
-
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  openModal(<DeleteTaskModal task={task} />);
-                }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-gray-100"
-              >
-                <Trash2 size={14} />
-                Delete
-              </button>
-            </div>
-          )}
-        </td>
-      )}
+            {isAdmin && (
+              <>
+                {" "}
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    openModal(<CreateTaskForm editTask={task} />);
+                  }}
+                  className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
+                >
+                  <Pencil size={14} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    openModal(<DeleteTaskModal task={task} />);
+                  }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-gray-100"
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>{" "}
+              </>
+            )}
+          </div>
+        )}
+      </td>
     </tr>
   );
 };

@@ -21,13 +21,15 @@ const worker = new Worker(
   async (job) => {
     const { userId, orgId, type, message, relatedId } = job.data;
 
-    await Notification.create({
+    const noti = await Notification.create({
       user: userId,
       organization: orgId,
       type,
       message,
       relatedId,
     });
+
+    console.log("notification:", noti);
   },
   {
     connection: redisConnection,

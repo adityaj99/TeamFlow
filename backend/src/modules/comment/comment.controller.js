@@ -1,4 +1,8 @@
-import { createCommentService, getCommentsService } from "./comment.service.js";
+import {
+  createCommentService,
+  getCommentsService,
+  getRepliesService,
+} from "./comment.service.js";
 
 export const createComment = async (req, res, next) => {
   try {
@@ -23,6 +27,19 @@ export const getComments = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: comments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReplies = async (req, res, next) => {
+  try {
+    const replies = await getRepliesService(req.params.commentId);
+
+    res.status(200).json({
+      success: true,
+      data: replies,
     });
   } catch (error) {
     next(error);

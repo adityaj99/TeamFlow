@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import api from "../axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
@@ -18,6 +19,7 @@ export const useCreateProject = () => {
 
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate("/");
 
   return useMutation({
     mutationFn: async (id) => {
@@ -27,6 +29,7 @@ export const useDeleteProject = () => {
 
     onSuccess: () => {
       toast.success("Project deleted Permanently");
+      navigate("/");
       queryClient.invalidateQueries(["projects"]);
       queryClient.invalidateQueries(["tasks"]);
     },
