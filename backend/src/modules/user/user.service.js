@@ -24,7 +24,7 @@ const registerUser = async ({ name, email, password }) => {
 };
 
 const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
     const error = new Error("Invalid credentials");
@@ -46,24 +46,27 @@ const loginUser = async ({ email, password }) => {
 };
 
 const getProfileService = async (userId, orgId) => {
-  const user = await User.findById(userId).select("-password").lean();
+  const userPromise = await User.findById(userId).select("-password").lean();
+
+  const membershipPromise = orgId
+    ? await Membership.findOne({
+        user: userId,
+        organization: orgId,
+        status: "active",
+      })
+        .select("role organization")
+        .lean()
+    : Promise.resolve(null);
+
+  const [user, membership] = await Promise.all([
+    userPromise,
+    membershipPromise,
+  ]);
 
   if (!user) {
     const error = new Error("User not found");
     error.status = 404;
     throw error;
-  }
-
-  let membership = null;
-
-  if (orgId) {
-    membership = await Membership.findOne({
-      user: userId,
-      organization: orgId,
-      status: "active",
-    })
-      .select("role organization")
-      .lean();
   }
 
   return { user, membership };
@@ -72,6 +75,7 @@ const getProfileService = async (userId, orgId) => {
 const updateUserProfileService = async (userId, data) => {
   const user = await User.findByIdAndUpdate(userId, data, {
     returnDocument: "after",
+    runValidators: true,
   }).select("-password");
 
   console.log("User", user);

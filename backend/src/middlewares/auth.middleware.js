@@ -7,7 +7,7 @@ export const protect = async (req, res, next) => {
 
     if (!token) {
       const error = new Error("Not authorized, token missing");
-      error.statusCode = 401;
+      error.status = 401;
       return next(error);
     }
 
@@ -17,7 +17,7 @@ export const protect = async (req, res, next) => {
 
     if (!user) {
       const error = new Error("Not authorized, user not found");
-      error.statusCode = 401;
+      error.status = 401;
       return next(error);
     }
 
@@ -25,6 +25,8 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    error.status = 401;
+    error.message = "Invalid or expired token";
     next(error);
   }
 };

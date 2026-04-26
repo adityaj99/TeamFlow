@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 const app = express();
 
+app.set("trust proxy", 1);
+
 import userRoutes from "./modules/user/user.routes.js";
 import orgRoutes from "./modules/organization/org.routes.js";
 import membershipRoutes from "./modules/membership/membership.routes.js";
@@ -19,20 +21,20 @@ import auditRoutes from "./modules/audit/audit.routes.js";
 import { protect } from "./middlewares/auth.middleware.js";
 import { requireActiveOrg } from "./middlewares/org.middleware.js";
 import { allowRoles } from "./middlewares/rbac.middleware.js";
-import limiter from "./middlewares/rateLimiter.js";
 import rateLimit from "express-rate-limit";
 import errorHandler from "./middlewares/error.middleware.js";
+import { limiter } from "./middlewares/rateLimiter.js";
 
 app.use(helmet());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   }),
 );
 app.use(express.json());
 app.use(cookieParser());
-// app.use(limiter);
+app.use(limiter);
 
 app.get("/", (req, res) => {
   res.send("Teamflow is running!");
@@ -67,14 +69,7 @@ app.get(
   },
 );
 
-app.use(
-  "/api/auth",
-  // rateLimit({
-  //   windowMs: 15 * 60 * 1000,
-  //   max: 20,
-  // }),
-  userRoutes,
-);
+app.use("/api/auth", userRoutes);
 app.use("/api/org", orgRoutes);
 app.use("/api/membership", membershipRoutes);
 app.use("/api/invite", inviteRoutes);
