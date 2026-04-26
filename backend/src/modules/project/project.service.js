@@ -1,6 +1,7 @@
 import Project from "./project.model.js";
 import Task from "../task/task.model.js";
 import { createAuditLog } from "../audit/audit.service.js";
+import mongoose from "mongoose";
 
 export const createProjectService = async (
   userId,
@@ -36,19 +37,18 @@ export const getProjectsService = async (orgId, query) => {
   };
 
   if (query.q) {
-    filter.$or = [
-      { name: { $regex: query.q, $options: "i" } },
-      { description: { $regex: query.q, $options: "i" } },
-    ];
+    filter.$text = { $search: query.q };
   }
 
-  const projects = await Project.find(filter)
-    .populate("createdBy", "name avatar")
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
-
-  const total = await Project.countDocuments(filter);
+  const [projects, total] = await Promise.all([
+    Project.find(filter)
+      .populate("createdBy", "name avatar")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean(),
+    Project.countDocuments(filter),
+  ]);
 
   return {
     projects,
@@ -77,8 +77,11 @@ export const getProjectByIdService = async (orgId, projectId) => {
   return project;
 };
 
-export const deleteProjectService = async (projectId, user) => {
-  const project = await Project.findById(projectId);
+export const deleteProjectService = async (projectId, orgId, userId) => {
+  const project = await Project.findOne({
+    _id: projectId,
+    organization: orgId,
+  });
 
   if (!project) {
     const error = new Error("Project not found");
@@ -86,25 +89,28 @@ export const deleteProjectService = async (projectId, user) => {
     throw error;
   }
 
-  const isAdmin = ["owner", "admin"].includes(user.role);
+  const session = await mongoose.startSession();
 
-  if (!isAdmin) {
-    const error = new Error("Not allowed to delete project");
-    error.status = 403;
+  try {
+    session.startTransaction();
+    await Task.deleteMany({ project: projectId }, { session });
+    await project.deleteOne({ session });
+
+    await createAuditLog({
+      action: "DELETE_PROJECT",
+      userId: user._id,
+      orgId: project.organization,
+      targetId: project._id,
+      targetType: "Project",
+    });
+
+    await session.commitTransaction();
+
+    return true;
+  } catch (error) {
+    await session.abortTransaction();
     throw error;
+  } finally {
+    session.endSession();
   }
-
-  await Task.deleteMany({ project: projectId });
-
-  await project.deleteOne();
-
-  await createAuditLog({
-    action: "DELETE_PROJECT",
-    userId: user._id,
-    orgId: project.organization,
-    targetId: project._id,
-    targetType: "Project",
-  });
-
-  return true;
 };

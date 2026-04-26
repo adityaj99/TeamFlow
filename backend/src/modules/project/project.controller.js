@@ -51,10 +51,7 @@ export const getProjectById = async (req, res, next) => {
 
 export const deleteProject = async (req, res, next) => {
   try {
-    await deleteProjectService(req.params.id, {
-      _id: req.user._id,
-      role: req.role,
-    });
+    await deleteProjectService(req.params.id, req.orgId, req.user._id);
 
     res.status(200).json({
       success: true,

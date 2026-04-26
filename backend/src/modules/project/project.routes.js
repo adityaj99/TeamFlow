@@ -21,6 +21,12 @@ router.post(
 
 router.get("/:id", protect, requireActiveOrg, getProjectById);
 router.get("/", protect, requireActiveOrg, getProjects);
-router.delete("/:id", protect, requireActiveOrg, deleteProject);
+router.delete(
+  "/:id",
+  protect,
+  requireActiveOrg,
+  allowRoles("owner", "admin"),
+  deleteProject,
+);
 
 export default router;

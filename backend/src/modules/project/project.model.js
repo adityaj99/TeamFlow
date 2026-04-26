@@ -32,7 +32,8 @@ const projectSchema = new mongoose.Schema(
   },
 );
 
-projectSchema.index({ organization: 1 });
+projectSchema.index({ organization: 1, status: 1, createdAt: -1 });
+projectSchema.index({ name: "text", description: "text" });
 
 const Project = mongoose.model("Project", projectSchema);
 
