@@ -1,6 +1,7 @@
 import Membership from "./membership.model.js";
 import {
   getUserOrganizatoions,
+  removeMemberService,
   switchOrg,
   updateRoleService,
 } from "./membership.service.js";
@@ -21,14 +22,12 @@ export const switchOrganization = async (req, res, next) => {
   try {
     const { orgId } = req.body;
 
-    console.log(req.body);
-
     await switchOrg(req.user._id, orgId);
 
     res.cookie("activeOrg", orgId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.json({ success: true, message: "Organization switched successfully" });
@@ -45,7 +44,6 @@ export const updateMemberRole = async (req, res, next) => {
       userId,
       role,
       orgId: req.orgId,
-      requesterId: req.user._id,
     });
 
     res.status(200).json({
@@ -55,6 +53,26 @@ export const updateMemberRole = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    next(error);
+  }
+};
+
+export const removeMember = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    await removeMemberService({
+      userIdToRemove: userId,
+      orgId: req.orgId,
+      requesterRole: req.role,
+      requesterId: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Member has been removed from the organization",
+    });
+  } catch (error) {
     next(error);
   }
 };

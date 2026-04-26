@@ -28,6 +28,8 @@ const membershipSchema = new mongoose.Schema(
 );
 
 membershipSchema.index({ user: 1, organization: 1 }, { unique: true });
+membershipSchema.index({ user: 1, status: 1 });
+membershipSchema.index({ organization: 1, status: 1 });
 
 const Membership = mongoose.model("Membership", membershipSchema);
 

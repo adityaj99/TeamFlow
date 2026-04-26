@@ -18,6 +18,9 @@ const organizationSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    avatar: {
+      type: String,
+    },
     description: {
       type: String,
       trim: true,
