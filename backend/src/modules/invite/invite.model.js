@@ -30,6 +30,10 @@ const inviteSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+inviteSchema.index({ token: 1 });
+inviteSchema.index({ organization: 1, email: 1, status: 1 });
+inviteSchema.index({ expiresAt: 1 });
+
 const Invite = mongoose.model("Invite", inviteSchema);
 
 export default Invite;
