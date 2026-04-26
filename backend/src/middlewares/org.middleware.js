@@ -6,7 +6,7 @@ export const requireActiveOrg = async (req, res, next) => {
 
     if (!orgId) {
       const error = new Error("No active organization selected");
-      error.statusCode = 400;
+      error.status = 400;
       return next(error);
     }
 
@@ -20,7 +20,7 @@ export const requireActiveOrg = async (req, res, next) => {
       const error = new Error(
         "User is not a member of the active organization",
       );
-      error.statusCode = 403;
+      error.status = 403;
       return next(error);
     }
 
@@ -29,7 +29,6 @@ export const requireActiveOrg = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Org Middleware Error:", error);
     next(error);
   }
 };

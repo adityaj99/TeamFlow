@@ -1,3 +1,4 @@
+import { updateOrgSchema } from "../../validations/org.validation.js";
 import Membership from "../membership/membership.model.js";
 import Organization from "./org.model.js";
 import {
@@ -91,11 +92,13 @@ export const updateOrganization = async (req, res, next) => {
   try {
     const { name, description } = req.body;
 
+    const validatedData = updateOrgSchema.parse(req.body);
+
     const updated = await updateOrganizationService({
-      userId: req.user._id,
       orgId: req.orgId,
-      name,
-      description,
+      name: validatedData.name,
+      description: validatedData.description,
+      role: req.role,
     });
 
     res.status(200).json({
@@ -110,7 +113,10 @@ export const updateOrganization = async (req, res, next) => {
 
 export const deleteOrgnization = async (req, res, next) => {
   try {
-    await deleteOrgnizationService({ userId: req.user._id, orgId: req.orgId });
+    await deleteOrgnizationService({
+      orgId: req.orgId,
+      role: req.role,
+    });
 
     res.clearCookie("activeOrg");
 
