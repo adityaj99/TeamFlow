@@ -19,6 +19,7 @@ const notificationSchema = new mongoose.Schema(
         "TASK_SUBMITTED",
         "TASK_REJECTED",
         "TASK_APPROVED",
+        "TASK_COMMENT",
         "INVITE_SENT",
       ],
       required: true,
@@ -39,7 +40,7 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-notificationSchema.index({ user: 1 });
+notificationSchema.index({ user: 1, isRead: 1 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
 

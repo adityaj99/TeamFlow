@@ -52,9 +52,11 @@ export const updateTaskStatus = async (req, res, next) => {
 
     const task = await updateTaskStatusService(
       req.params.id,
+      req.orgId,
       {
         _id: req.user._id,
         role: req.role,
+        name: req.user.name,
       },
       validatedData,
     );
@@ -72,6 +74,7 @@ export const updateTask = async (req, res, next) => {
 
     const task = await updateTaskService(
       req.params.id,
+      req.orgId,
       {
         _id: req.user._id,
         role: req.role,
@@ -89,7 +92,7 @@ export const updateTask = async (req, res, next) => {
 
 export const deleteTask = async (req, res, next) => {
   try {
-    await deleteTaskService(req.params.id, {
+    await deleteTaskService(req.params.id, req.orgId, {
       _id: req.user._id,
       role: req.role,
     });

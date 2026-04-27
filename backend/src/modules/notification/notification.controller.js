@@ -21,6 +21,10 @@ export const markAsRead = async (req, res, next) => {
       { user: userId, isRead: false },
       { isRead: true },
     );
+
+    res
+      .status(200)
+      .json({ success: true, message: "Notifications marked as read" });
   } catch (error) {
     next(error);
   }

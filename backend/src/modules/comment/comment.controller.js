@@ -23,7 +23,7 @@ export const createComment = async (req, res, next) => {
 
 export const getComments = async (req, res, next) => {
   try {
-    const comments = await getCommentsService(req.params.taskId);
+    const comments = await getCommentsService(req.params.taskId, req.orgId);
     res.status(200).json({
       success: true,
       data: comments,
@@ -35,7 +35,7 @@ export const getComments = async (req, res, next) => {
 
 export const getReplies = async (req, res, next) => {
   try {
-    const replies = await getRepliesService(req.params.commentId);
+    const replies = await getRepliesService(req.params.commentId, req.orgId);
 
     res.status(200).json({
       success: true,

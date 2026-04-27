@@ -24,7 +24,19 @@ router.post(
 router.get("/", protect, requireActiveOrg, getTasks);
 
 router.patch("/:id/status", protect, requireActiveOrg, updateTaskStatus);
-router.patch("/:id", protect, requireActiveOrg, updateTask);
-router.delete("/:id", protect, requireActiveOrg, deleteTask);
+router.patch(
+  "/:id",
+  protect,
+  requireActiveOrg,
+  allowRoles("owner", "admin", "manager"),
+  updateTask,
+);
+router.delete(
+  "/:id",
+  protect,
+  requireActiveOrg,
+  allowRoles("owner", "admin", "manager"),
+  deleteTask,
+);
 
 export default router;

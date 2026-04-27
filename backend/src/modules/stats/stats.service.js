@@ -21,23 +21,22 @@ export const getStatsService = async ({ scope, projectId, orgId }) => {
     filter.project = projectId;
   }
 
-  const totalTasks = await Task.countDocuments(filter);
-
-  const completedTasks = await Task.countDocuments({
-    ...filter,
-    status: { $in: ["approved", "submitted"] },
-  });
-
-  const pendingTasks = await Task.countDocuments({
-    ...filter,
-    status: { $in: ["todo", "in_progress", "rejected"] },
-  });
-
-  const overdueTasks = await Task.countDocuments({
-    ...filter,
-    dueDate: { $lt: new Date() },
-    status: { $ne: "submitted" },
-  });
+  [totalTasks, completedTasks, pendingTasks, overdueTasks] = await Promise.all([
+    await Task.countDocuments(filter),
+    await Task.countDocuments({
+      ...filter,
+      status: { $in: ["approved", "submitted"] },
+    }),
+    await Task.countDocuments({
+      ...filter,
+      status: { $in: ["todo", "in_progress", "rejected"] },
+    }),
+    await Task.countDocuments({
+      ...filter,
+      dueDate: { $lt: new Date() },
+      status: { $ne: "submitted" },
+    }),
+  ]);
 
   return {
     totalTasks,

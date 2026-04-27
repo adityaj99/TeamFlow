@@ -1,4 +1,5 @@
 import { createAuditLog } from "../audit/audit.service.js";
+import Membership from "../membership/membership.model.js";
 import { createNotifcationService } from "../notification/notification.service.js";
 import User from "../user/user.model.js";
 import Task from "./task.model.js";
@@ -17,6 +18,17 @@ export const createTaskService = async (userId, orgId, data) => {
     organization: orgId,
     createdBy: userId,
   });
+
+  const membership = await Membership.findOne({
+    user: data.assignedTo,
+    organization: orgId,
+  }).lean();
+
+  if (!membership) {
+    const error = new Error("User not found in this organization");
+    error.status = 404;
+    throw error;
+  }
 
   if (data.assignedTo) {
     await createNotifcationService({
@@ -51,10 +63,7 @@ export const getTasksService = async (orgId, query) => {
   }
 
   if (query.search) {
-    filter.$or = [
-      { title: { $regex: query.search, $options: "i" } },
-      { description: { $regex: query.search, $options: "i" } },
-    ];
+    filter.$text = { $search: query.search };
   }
 
   let tasks;
@@ -64,7 +73,8 @@ export const getTasksService = async (orgId, query) => {
       .populate("assignedTo", "name email avatar")
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
   } else {
     tasks = await Task.find(filter)
       .populate("assignedTo", "name email avatar")
@@ -72,7 +82,8 @@ export const getTasksService = async (orgId, query) => {
       .populate("createdBy", "name avatar")
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
   }
 
   const total = await Task.countDocuments(filter);
@@ -88,8 +99,13 @@ export const getTasksService = async (orgId, query) => {
   };
 };
 
-export const updateTaskStatusService = async (taskId, user, updateData) => {
-  const task = await Task.findById(taskId);
+export const updateTaskStatusService = async (
+  taskId,
+  orgId,
+  user,
+  updateData,
+) => {
+  const task = await Task.findOne({ _id: taskId, organization: orgId });
 
   if (!task) {
     const error = new Error("Task not found");
@@ -166,14 +182,12 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
 
   await task.save();
 
-  const u = await User.findById(user._id).select("name");
-
   if (status === "submitted") {
     await createNotifcationService({
       userId: task.createdBy,
       orgId: task.organization,
       type: "TASK_SUBMITTED",
-      message: `${u.name} submitted task ${task.title}`,
+      message: `${user.name} submitted task ${task.title}`,
       relatedId: task._id,
     });
   }
@@ -213,16 +227,8 @@ export const updateTaskStatusService = async (taskId, user, updateData) => {
   return task;
 };
 
-export const updateTaskService = async (taskId, user, data) => {
-  const task = await Task.findById(taskId);
-
-  console.log(data);
-
-  if (data.status !== task.status) {
-    const error = new Error("Status cannot be updated via this endpoint");
-    error.status = 400;
-    throw error;
-  }
+export const updateTaskService = async (taskId, orgId, user, data) => {
+  const task = await Task.findOne({ _id: taskId, organization: orgId });
 
   if (!task) {
     const error = new Error("Task not found");
@@ -230,11 +236,9 @@ export const updateTaskService = async (taskId, user, data) => {
     throw error;
   }
 
-  const isAdmin = ["admin", "owner", "manager"].includes(user.role);
-
-  if (!isAdmin) {
-    const error = new Error("Not allowed to update task");
-    error.status = 403;
+  if (data.status && data.status !== task.status) {
+    const error = new Error("Status cannot be updated via this endpoint");
+    error.status = 400;
     throw error;
   }
 
@@ -267,20 +271,12 @@ export const updateTaskService = async (taskId, user, data) => {
   return task;
 };
 
-export const deleteTaskService = async (taskId, user) => {
-  const task = await Task.findById(taskId);
+export const deleteTaskService = async (taskId, orgId, user) => {
+  const task = await Task.findOne({ _id: taskId, organization: orgId });
 
   if (!task) {
     const error = new Error("Task not found");
     error.status = 404;
-    throw error;
-  }
-
-  const isAdmin = ["owner", "manager", "admin"].includes(user.role);
-
-  if (!isAdmin) {
-    const error = new Error("Not allowed to delete this task");
-    error.status = 403;
     throw error;
   }
 
