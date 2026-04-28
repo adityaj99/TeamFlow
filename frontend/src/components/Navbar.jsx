@@ -2,6 +2,15 @@ import { PanelLeft } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import NavbarNotification from "./NavbarNotification";
 
+const routeNames = {
+  "/": "Dashboard",
+  tasks: "Tasks",
+  members: "Members",
+  profile: "Profile",
+  project: "Project",
+  settings: "Settings",
+};
+
 const Navbar = () => {
   const location = useLocation();
 
@@ -19,19 +28,7 @@ const Navbar = () => {
         <div className="w-10 border-r border-gray-200">
           <PanelLeft size={20} />
         </div>
-        <p className="font-semibold">
-          {filterLocation === "/"
-            ? "Dashboard"
-            : filterLocation === "tasks"
-              ? "Task"
-              : filterLocation === "members"
-                ? "Member"
-                : filterLocation === "profile"
-                  ? "Profile"
-                  : filterLocation === "project"
-                    ? "Project"
-                    : "Settings"}
-        </p>
+        <p className="font-semibold">{routeNames[filterLocation] || "Page"}</p>
       </div>
 
       <div className="relative z-100">

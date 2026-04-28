@@ -28,7 +28,7 @@ const loginUser = async ({ email, password }) => {
 
   if (!user) {
     const error = new Error("Invalid credentials");
-    error.status = 400;
+    error.status = 401;
     throw error;
   }
 
@@ -36,7 +36,7 @@ const loginUser = async ({ email, password }) => {
 
   if (!isMatch) {
     const error = new Error("Invalid credentials");
-    error.status = 400;
+    error.status = 401;
     throw error;
   }
 
@@ -78,8 +78,6 @@ const updateUserProfileService = async (userId, data) => {
     runValidators: true,
   }).select("-password");
 
-  console.log("User", user);
-
   if (!user) {
     const error = new Error("User not found");
     error.status = 404;
@@ -89,4 +87,43 @@ const updateUserProfileService = async (userId, data) => {
   return user;
 };
 
-export { registerUser, loginUser, getProfileService, updateUserProfileService };
+const updatePasswordService = async (userId, currentPassword, newPassword) => {
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+
+  if (!user.password) {
+    const error = new Error(
+      "You signed up with a third-party provider and do not have a password.",
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  const isMatch = await comparePassword(currentPassword, user.password);
+
+  if (!isMatch) {
+    const error = new Error("Incorrect current password");
+    error.status = 400;
+    throw error;
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  user.password = hashedPassword;
+
+  await user.save();
+
+  return;
+};
+
+export {
+  registerUser,
+  loginUser,
+  getProfileService,
+  updateUserProfileService,
+  updatePasswordService,
+};

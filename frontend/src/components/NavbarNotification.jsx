@@ -11,13 +11,10 @@ const NavbarNotification = () => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  console.log(notifications);
-
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleToggle = () => {
     const willOpen = !open;
-    console.log(willOpen);
     setOpen(willOpen);
 
     if (willOpen && unreadCount > 0) {

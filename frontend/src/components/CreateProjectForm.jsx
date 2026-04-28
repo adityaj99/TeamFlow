@@ -9,9 +9,9 @@ const CreateProjectForm = () => {
 
   const { mutate: createProject, isPending } = useCreateProject();
 
-  const [name, setName] = useState();
-  const [description, setDescription] = useState();
-  const [error, setError] = useState();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();

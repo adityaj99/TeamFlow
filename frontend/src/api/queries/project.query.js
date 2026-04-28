@@ -2,6 +2,7 @@ import {
   useInfiniteQuery,
   useQuery,
   useQueryClient,
+  keepPreviousData,
 } from "@tanstack/react-query";
 import api from "../axios";
 
@@ -12,7 +13,8 @@ export const useProjects = (params = {}, options = {}) => {
       const res = await api.get("/api/project", { params });
       return res.data.data;
     },
-    keepPreviousData: true,
+    // keepPreviousData: true,
+    placeholderData: keepPreviousData,
     ...options,
   });
 };
@@ -31,8 +33,8 @@ export const useInfiniteProjects = () => {
       return page < totalPages ? page + 1 : undefined;
     },
 
-    // 🔥 keeps UI stable while fetching next pages
-    keepPreviousData: true,
+    // keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -42,10 +44,8 @@ export const useProject = (projectId, options = {}) => {
   return useQuery({
     queryKey: ["project", projectId],
     queryFn: async () => {
-      const projects =
-        queryClient
-          .getQueryData(["projects"])
-          .pages?.flatMap((page) => page.data) || [];
+      const cachedData = queryClient.getQueryData(["projects"]);
+      const projects = cachedData?.pages?.flatMap((p) => p.data) || [];
 
       const cachedProject = projects?.find((p) => p._id === projectId);
       if (cachedProject) {

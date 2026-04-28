@@ -10,7 +10,7 @@ import {
   EllipsisIcon,
   Check,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import SidebarProjectsList from "./Lists/SidebarProjectList";
 import { useOrgs, useCurrentOrg } from "../api/queries/org.query";
@@ -22,18 +22,11 @@ import SidebarUserMenu from "./SiderbarUserMenu";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [workspacePop, setWorkspacePop] = useState(false);
-  const [activeOrgId, setActiveOrgId] = useState(null);
 
   const popupRef = useRef();
-
-  const navItems = [
-    { name: "Dashboard", path: "/", icon: <LayoutDashboard size={16} /> },
-    { name: "Tasks", path: "/tasks", icon: <CircleCheckBig size={16} /> },
-    { name: "Members", path: "/members", icon: <Users size={16} /> },
-    { name: "Settings", path: "/settings", icon: <Settings size={16} /> },
-  ];
 
   const { data: orgs = [] } = useOrgs();
   const { data: currentOrg = {} } = useCurrentOrg();
@@ -42,6 +35,18 @@ const Sidebar = () => {
   const { data: userData } = useAuth();
 
   const currentUser = userData.user;
+
+  const role = userData?.membership?.role;
+  const isOwner = role === "owner";
+
+  const navItems = [
+    { name: "Dashboard", path: "/", icon: <LayoutDashboard size={16} /> },
+    { name: "Tasks", path: "/tasks", icon: <CircleCheckBig size={16} /> },
+    { name: "Members", path: "/members", icon: <Users size={16} /> },
+    ...(isOwner
+      ? [{ name: "Settings", path: "/settings", icon: <Settings size={16} /> }]
+      : []),
+  ];
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -62,7 +67,10 @@ const Sidebar = () => {
   return (
     <aside className="w-68 flex flex-col bg-[#FAFBFB] border-r border-gray-200 p-4 fixed h-screen shadow">
       {/* Logo */}
-      <div className="flex gap-2 items-center h-9">
+      <div
+        onClick={() => navigate("/")}
+        className="flex gap-2 items-center h-9 cursor-pointer"
+      >
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-black text-white">
           <AudioWaveform className="size-4" />
         </div>
@@ -73,28 +81,30 @@ const Sidebar = () => {
       <div className="space-y-2 border-b border-gray-200 py-2">
         <div className="flex items-center justify-between text-gray-400">
           <p className="text-xs">Workspaces</p>
-          <CirclePlus
-            className="cursor-pointer"
-            size={16}
-            onClick={() => {
-              openModal(<CreateWorkspaceForm />);
-              setWorkspacePop(false);
-            }}
-          />
+          {isOwner && (
+            <CirclePlus
+              className="cursor-pointer"
+              size={16}
+              onClick={() => {
+                openModal(<CreateWorkspaceForm />);
+                setWorkspacePop(false);
+              }}
+            />
+          )}
         </div>
 
         <div ref={popupRef} className="relative">
           {/* Trigger */}
           <div
             onClick={() => setWorkspacePop((prev) => !prev)}
-            className="flex items-center justify-between cursor-pointer rounded hover:bg-gray-100 transition p-1"
+            className="flex items-center justify-between cursor-pointer rounded-xl hover:bg-gray-100 transition p-1"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full">
               <span className="flex items-center justify-center h-8 w-8 rounded-md bg-black text-white">
                 {currentOrg?.name?.charAt(0)}
               </span>
-              <span className="flex flex-col">
-                <span className="font-semibold">
+              <span className="flex flex-col w-[80%]">
+                <span className="font-semibold truncate">
                   {currentOrg?.name || "Select Workspace"}
                 </span>
                 <span className="text-gray-400 text-xs">
@@ -128,51 +138,51 @@ const Sidebar = () => {
             {/* Org List */}
             <div className="text-gray-700">
               {orgs.length > 0 ? (
-                orgs.map((org) => (
-                  <div
-                    key={org._id}
-                    onClick={() => {
-                      const id = org.organization._id;
-                      selectOrg(id);
-                      setActiveOrgId(id);
-                      setWorkspacePop(false);
-                    }}
-                    className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors
-                      ${
-                        activeOrgId === org.organization._id
-                          ? "bg-gray-100 font-medium"
-                          : "hover:bg-gray-100"
-                      }`}
-                  >
-                    <div className="flex items-center justify-center h-6 w-6 border border-gray-200 rounded text-xs">
-                      {org.organization.name.charAt(0)}
+                orgs.map((org) => {
+                  const isActive = currentOrg?._id === org.organization._id;
+
+                  return (
+                    <div
+                      key={org._id}
+                      onClick={() => {
+                        selectOrg(org.organization._id);
+                        setWorkspacePop(false);
+                      }}
+                      className={`w-full flex items-center gap-2 p-2 rounded-xl cursor-pointer transition-colors
+            ${isActive ? "bg-gray-100 font-medium" : "hover:bg-gray-100"}`}
+                    >
+                      <div className="flex items-center justify-center h-6 w-6 border border-gray-200 rounded text-xs">
+                        {org.organization.name.charAt(0)}
+                      </div>
+                      <div className="w-[80%] flex items-center justify-between">
+                        <p className="w-[95%] truncate">
+                          {org.organization.name}
+                        </p>
+                        {isActive && <Check size={16} />}
+                      </div>
                     </div>
-                    <div className="w-full flex items-center justify-between">
-                      <p className="truncate">{org.organization.name}</p>
-                      {currentOrg._id === org.organization._id && (
-                        <Check size={16} />
-                      )}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-xs text-gray-400 p-2">No workspace</p>
               )}
             </div>
 
             {/* Add Workspace */}
-            <div
-              onClick={() => {
-                openModal(<CreateWorkspaceForm />);
-                setWorkspacePop(false);
-              }}
-              className="flex items-center gap-2 hover:bg-gray-100 rounded cursor-pointer p-2 transition"
-            >
-              <div className="w-fit p-1 border rounded border-gray-200">
-                <Plus size={12} />
+            {isOwner && (
+              <div
+                onClick={() => {
+                  openModal(<CreateWorkspaceForm />);
+                  setWorkspacePop(false);
+                }}
+                className="flex items-center gap-2 hover:bg-gray-100 rounded-xl cursor-pointer p-2 transition"
+              >
+                <div className="w-fit p-1 border rounded border-gray-200">
+                  <Plus size={12} />
+                </div>
+                <p className="text-gray-600 text-sm">Add workspace</p>
               </div>
-              <p className="text-gray-600 text-sm">Add workspace</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -183,7 +193,7 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex w-full items-center gap-2 p-2 rounded-md transition
+            className={`flex w-full items-center gap-2 p-2 rounded-xl transition
               ${
                 location.pathname === item.path
                   ? "bg-gray-100 text-black"

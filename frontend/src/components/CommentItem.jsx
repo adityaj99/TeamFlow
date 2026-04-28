@@ -42,9 +42,14 @@ const CommentItem = ({ comment, isReply }) => {
 
         {/* Actions */}
         <div className="flex gap-3 text-xs text-gray-400 mt-1">
-          <button onClick={() => setReplying((p) => !p)}>Reply</button>
+          <button onClick={() => setReplying((p) => !p)}>
+            {replying ? "Cancel" : "Reply"}
+          </button>
 
-          <button onClick={() => setShowReplies((p) => !p)}>
+          <button
+            className="hover:text-black transition"
+            onClick={() => setShowReplies((p) => !p)}
+          >
             {showReplies ? "Hide replies" : "View replies"}
           </button>
         </div>
@@ -52,7 +57,14 @@ const CommentItem = ({ comment, isReply }) => {
         {/* Reply Input */}
         {replying && (
           <div className="mt-2">
-            <AddComment taskId={comment.task} parentComment={comment._id} />
+            <AddComment
+              taskId={comment.task}
+              parentComment={comment._id}
+              onSuccessCallback={() => {
+                setReplying(false);
+                setShowReplies(true);
+              }}
+            />
           </div>
         )}
 
@@ -60,7 +72,7 @@ const CommentItem = ({ comment, isReply }) => {
         {showReplies && (
           <div className="ml-4 border-l border-gray-200 rounded-xl space-y-3">
             {replies.map((reply) => (
-              <CommentItem key={reply._id} comment={reply} isReply="true" />
+              <CommentItem key={reply._id} comment={reply} isReply={true} />
             ))}
           </div>
         )}

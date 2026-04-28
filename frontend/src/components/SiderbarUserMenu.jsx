@@ -11,7 +11,6 @@ const SidebarUserMenu = ({ currentUser }) => {
 
   const { mutate: logout, isPending } = useLogout();
 
-  // 🔥 close on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!menuRef.current?.contains(e.target)) {
@@ -26,7 +25,6 @@ const SidebarUserMenu = ({ currentUser }) => {
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
-        localStorage.removeItem("token");
         navigate("/login");
       },
     });
@@ -65,20 +63,20 @@ const SidebarUserMenu = ({ currentUser }) => {
 
       {/* 🔥 DROPDOWN */}
       {open && (
-        <div className="absolute bottom-12 text-gray-700 right-0 w-44 bg-white border border-gray-200 rounded-lg shadow-md py-1 z-50">
+        <div className="absolute bottom-12 right-0 w-44 bg-white border border-gray-200 rounded-xl shadow-md p-1 z-50">
           {/* Profile */}
           <button
             onClick={() => {
               navigate("/profile");
               setOpen(false);
             }}
-            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
+            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-xl"
           >
             <User size={14} />
             Profile
           </button>
 
-          <button className="flex items-center gap-2 w-full px-3 py-2 text-gray-400 cursor-not-allowed">
+          <button className="flex items-center gap-2 w-full px-3 py-2 text-gray-400 cursor-not-allowed rounded-xl">
             <Moon size={14} />
             Change Theme
           </button>
@@ -87,7 +85,7 @@ const SidebarUserMenu = ({ currentUser }) => {
           <button
             disabled={isPending}
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-red-50"
+            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-xl"
           >
             <LogOut size={14} />
             {isPending ? "Logging out..." : "Logout"}

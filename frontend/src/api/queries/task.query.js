@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import api from "../axios";
 
 export const useTasks = (filters = {}, options = {}) => {
@@ -15,7 +15,7 @@ export const useTasks = (filters = {}, options = {}) => {
       const res = await api.get("/api/task", { params: filters });
       return res.data;
     },
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
     ...options,
   });

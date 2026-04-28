@@ -21,7 +21,6 @@ import {
 import { getAvatar } from "../utils/getAvatar";
 import { useEffect, useRef, useState } from "react";
 import CreateTaskForm from "./CreateTaskForm";
-import TaskActivityModal from "./TaskActivityModal";
 import DeleteTaskModal from "./DeleteTaskModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 
@@ -67,10 +66,9 @@ const TaskRow = ({ task, scope }) => {
     const isAdmin = ["admin", "owner", "manager"].includes(
       user?.membership?.role,
     );
-    const isAssigned = task.assignedTo?._id === user?.user._id;
+    const isAssigned = task.assignedTo?._id === user?.user?._id;
 
     const current = task.status;
-
     let allowed = transitions[current] || [];
 
     if (!isAdmin && current === "submitted") return [current];
@@ -205,7 +203,7 @@ const TaskRow = ({ task, scope }) => {
       {/* ACTION */}
 
       <td
-        className="relative px-4 py-3 w-[5%] text-gray-400 cursor-pointer text-center"
+        className="relative px-4 py-3 w-[5%] cursor-pointer text-center"
         ref={menuRef}
       >
         <button
@@ -216,10 +214,10 @@ const TaskRow = ({ task, scope }) => {
         </button>
 
         {open && (
-          <div className="absolute right-12 top-0 w-36 bg-white border border-gray-200 rounded shadow-md z-50">
+          <div className="absolute right-12 top-0 w-36 bg-white border border-gray-200 rounded-xl shadow-md p-1 z-50">
             <button
               onClick={() => openModal(<TaskDetailsModal task={task} />)}
-              className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
+              className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-xl"
             >
               <Info size={14} />
               Details
@@ -233,7 +231,7 @@ const TaskRow = ({ task, scope }) => {
                     setOpen(false);
                     openModal(<CreateTaskForm editTask={task} />);
                   }}
-                  className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100"
+                  className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-xl"
                 >
                   <Pencil size={14} />
                   Edit
@@ -243,7 +241,7 @@ const TaskRow = ({ task, scope }) => {
                     setOpen(false);
                     openModal(<DeleteTaskModal task={task} />);
                   }}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-gray-100"
+                  className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-xl"
                 >
                   <Trash2 size={14} />
                   Delete

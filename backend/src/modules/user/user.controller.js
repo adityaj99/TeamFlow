@@ -6,9 +6,11 @@ import {
   getProfileService,
   loginUser,
   registerUser,
+  updatePasswordService,
   updateUserProfileService,
 } from "./user.service.js";
 import { updateProfileSchema } from "../../validations/user.validation.js";
+import User from "./user.model.js";
 
 const register = async (req, res, next) => {
   try {
@@ -98,4 +100,16 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-export { register, login, logout, getProfile, updateProfile };
+const updatePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    await updatePasswordService(req.user._id, currentPassword, newPassword);
+
+    res.status(200).json({ success: true, message: "Password updated" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { register, login, logout, getProfile, updateProfile, updatePassword };

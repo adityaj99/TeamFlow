@@ -12,3 +12,17 @@ export const useUpdateRole = () => {
     },
   });
 };
+
+export const useRemoveMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId) => {
+      const res = await api.delete(`/api/membership/${userId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+    },
+  });
+};

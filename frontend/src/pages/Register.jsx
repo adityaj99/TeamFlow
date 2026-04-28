@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import { AudioWaveform } from "lucide-react";
+import { useAuth } from "../api/queries/auth.query";
 
 const Register = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
   const redirect = decodeURIComponent(params.get("redirect") || "/");
+
+  const { data: authData } = useAuth();
+
+  useEffect(() => {
+    if (authData?.user) {
+      navigate(redirect);
+    }
+  }, [authData, navigate, redirect]);
 
   const [form, setForm] = useState({
     name: "",
@@ -105,6 +114,7 @@ const Register = () => {
           {/* Button */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 rounded-md bg-black text-white font-medium hover:opacity-90 transition"
           >
             {loading ? "Creating..." : "Register"}
@@ -114,14 +124,17 @@ const Register = () => {
         {/* Footer */}
         <p className="text-sm text-center mt-4 opacity-70">
           Already have an account?{" "}
-          <Link className="underline underline-offset-4" to="/login">
-            sign In
+          <Link
+            className="underline underline-offset-4"
+            to={`/login?redirect=${encodeURIComponent(redirect)}`}
+          >
+            Sign In
           </Link>
         </p>
       </div>
 
       <div className="flex flex-col items-center text-gray-400">
-        <p>By clicking continue, you are agree to our</p>
+        <p>By clicking continue, you agree to our</p>
         <p>
           <span className="underline underline-offset-4">Terms of Service</span>{" "}
           and{" "}

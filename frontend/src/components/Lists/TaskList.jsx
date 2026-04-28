@@ -1,7 +1,7 @@
 import dateFormat from "../../utils/dateFormat";
 import { getAvatar } from "../../utils/getAvatar";
 
-const TaskList = ({ tasks = [], isLoading }) => {
+const TaskList = ({ tasks = [], isLoading, canCreate }) => {
   if (isLoading)
     return (
       <div className="flex flex-col gap-2 mt-4">
@@ -21,8 +21,6 @@ const TaskList = ({ tasks = [], isLoading }) => {
         ))}
       </div>
     );
-
-  console.log(tasks);
 
   return (
     <div className="flex flex-col mt-4">
@@ -64,8 +62,8 @@ const TaskList = ({ tasks = [], isLoading }) => {
         ))
       ) : (
         <div className="flex flex-col items-center justify-center text-gray-400 p-6">
-          <p>There is no project yet.</p>
-          <p>Please create for workspace.</p>
+          <p>There are no tasks yet.</p>
+          {canCreate && <p>Create one to get started.</p>}
         </div>
       )}
     </div>

@@ -71,6 +71,7 @@ export const getTasksService = async (orgId, query) => {
   if (query.projectId) {
     tasks = await Task.find(filter)
       .populate("assignedTo", "name email avatar")
+      .populate("createdBy", "name avatar")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })

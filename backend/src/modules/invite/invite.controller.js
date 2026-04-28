@@ -28,7 +28,7 @@ export const acceptInvite = async (req, res, next) => {
   try {
     const { token } = req.body;
 
-    await acceptInviteService({
+    const invite = await acceptInviteService({
       token,
       userId: req.user._id,
     });
@@ -36,6 +36,9 @@ export const acceptInvite = async (req, res, next) => {
     res.json({
       success: true,
       message: "Successfully joined the organization",
+      data: {
+        orgId: invite.organization,
+      },
     });
   } catch (error) {
     next(error);

@@ -9,11 +9,16 @@ import {
   ChevronRight,
   ChevronsUpDown,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../api/queries/auth.query";
 
 const Tasks = () => {
   const { openModal } = useModal();
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const [localSearch, setLocalSearch] = useState(
+    searchParams.get("search") || "",
+  );
 
   const filters = {
     search: searchParams.get("search") || "",
@@ -22,6 +27,11 @@ const Tasks = () => {
     page: parseInt(searchParams.get("page")) || 1,
     limit: 10,
   };
+
+  const { data: userData } = useAuth();
+  const canCreate = ["owner", "admin", "manager"].includes(
+    userData?.membership?.role,
+  );
 
   const { data, isLoading } = useTasks(filters);
 
@@ -39,6 +49,16 @@ const Tasks = () => {
     setSearchParams(updated);
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.search) {
+        updateFilters({ search: localSearch, page: 1 });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localSearch]);
+
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -50,12 +70,14 @@ const Tasks = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => openModal(<CreateTaskForm />)}
-          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-900 cursor-pointer transition"
-        >
-          + New Task
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => openModal(<CreateTaskForm />)}
+            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-900 cursor-pointer transition"
+          >
+            + New Task
+          </button>
+        )}
       </div>
 
       {/* FILTERS */}
@@ -63,8 +85,8 @@ const Tasks = () => {
         <input
           placeholder="Search tasks..."
           className="border border-gray-200 px-3 py-2 rounded-md w-64 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-          value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
         />
 
         <div className="relative">
@@ -209,7 +231,7 @@ const Tasks = () => {
               ))
             ) : tasks.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-12 text-center text-gray-400">
+                <td colSpan={7} className="p-12 text-center text-gray-400">
                   No tasks found
                 </td>
               </tr>

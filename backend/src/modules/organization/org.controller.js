@@ -24,8 +24,6 @@ export const getMembersOfOrg = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
-    console.log(page, limit, skip);
-
     const [members, total] = await Promise.all([
       Membership.find({
         organization: req.orgId,

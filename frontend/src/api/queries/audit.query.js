@@ -6,6 +6,7 @@ export const useInfiniteAudits = (params) => {
 
   return useInfiniteQuery({
     queryKey: ["audits", params],
+    initialPageParam: 1,
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get("/api/audit", {
         params: { ...params, page: pageParam, limit: 10 },

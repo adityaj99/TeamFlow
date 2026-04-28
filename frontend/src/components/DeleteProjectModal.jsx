@@ -1,12 +1,10 @@
 import { toast } from "sonner";
 import { useDeleteProject } from "../api/mutations/project.mutation";
 import { useModal } from "../context/ModalContext";
-import { useNavigate } from "react-router-dom";
 
 const DeleteProjectModal = ({ project }) => {
   const { mutate: deleteProject, isPending: deleting } = useDeleteProject();
   const { closeModal } = useModal();
-  const navigate = useNavigate();
 
   const handleDelete = () => {
     closeModal();

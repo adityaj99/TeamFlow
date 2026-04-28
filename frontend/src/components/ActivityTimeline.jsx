@@ -6,7 +6,6 @@ const ActivityTimeline = ({ targetId, targetType }) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } =
     useInfiniteAudits({ targetId, targetType });
 
-  // 🔥 flatten pages
   const logs = data?.pages?.flatMap((page) => page.data) || [];
 
   const isEmpty = logs.length === 0;
@@ -118,27 +117,32 @@ const ActivityTimeline = ({ targetId, targetType }) => {
 };
 
 const groupByDate = (logs) => {
-  const groupes = {};
+  const groups = {};
+
+  // 👇 1. Calculate these OUTSIDE the loop so they don't mutate!
+  const today = new Date();
+  const todayStr = today.toDateString();
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toDateString();
 
   logs.forEach((log) => {
     const date = new Date(log.createdAt);
-    const today = new Date();
-
     let key = date.toDateString();
 
-    if (date.toDateString() === today.toDateString()) {
+    // 👇 2. Simple, fast string comparison
+    if (key === todayStr) {
       key = "Today";
-    } else if (
-      new Date(today.setDate(today.getDate() - 1)).toDateString() ===
-      date.toDateString()
-    ) {
+    } else if (key === yesterdayStr) {
       key = "Yesterday";
     }
 
-    if (!groupes[key]) groupes[key] = [];
-    groupes[key].push(log);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(log);
   });
-  return groupes;
+
+  return groups;
 };
 
 export default ActivityTimeline;

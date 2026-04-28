@@ -28,8 +28,6 @@ const worker = new Worker(
       message,
       relatedId,
     });
-
-    console.log("notification:", noti);
   },
   {
     connection: redisConnection,

@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const useSelectOrg = () => {
   const queryClient = useQueryClient();
@@ -32,12 +34,14 @@ export const useUpdateOrg = () => {
 
 export const useDeleteOrg = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async () => api.delete("/api/org"),
+    mutationFn: async () => await api.delete("/api/org"),
 
     onSuccess: () => {
-      queryClient.clear();
+      queryClient.invalidateQueries();
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to delete workspace");
     },
   });
 };

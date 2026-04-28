@@ -2,7 +2,7 @@ import { Worker } from "bullmq";
 import redisConnection from "../config/redis.js";
 import { sendEmail } from "../utils/email.js";
 
-console.log("Email worker started");
+// console.log("Email worker started");
 
 const emailWorker = new Worker(
   "emailQueue",
@@ -11,7 +11,7 @@ const emailWorker = new Worker(
 
     await sendEmail({ to, subject, html });
 
-    console.log(`Email successfully sent to ${to}`);
+    // console.log(`Email successfully sent to ${to}`);
   },
   { connection: redisConnection },
 );

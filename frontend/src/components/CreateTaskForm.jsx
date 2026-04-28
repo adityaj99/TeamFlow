@@ -36,13 +36,22 @@ const CreateTaskForm = ({ projectId, editTask }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!form.title.trim()) {
+      return setError("Task title is required.");
+    }
+    if (!form.project) {
+      return setError("Please select a project for this task.");
+    }
+
     const payload = {
       ...form,
-      assignedTo: form.assignedTo || undefined,
-      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : undefined,
+      assignedTo: form.assignedTo ? form.assignedTo : null,
+      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
     };
 
     if (isEdit) {
+      delete payload.status;
+
       updateTask(
         {
           id: editTask._id,
@@ -53,7 +62,9 @@ const CreateTaskForm = ({ projectId, editTask }) => {
             closeModal();
             toast.success("Task updated");
           },
-          onError: () => toast.error("Update failed"),
+          onError: (err) => {
+            setError(err.response?.data?.message || "Failed to create task");
+          },
         },
       );
     } else {
@@ -175,6 +186,7 @@ const CreateTaskForm = ({ projectId, editTask }) => {
         <select
           name="status"
           className="w-full border p-2 rounded"
+          disabled={isEdit}
           value={form.status}
           onChange={handleChange}
         >

@@ -1,9 +1,9 @@
-import { useState } from "react";
 import api from "../api/axios";
-import { useAuth } from "../context/AuthContext";
 import { AudioWaveform } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useAuth } from "../api/queries/auth.query";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,12 +11,19 @@ const Login = () => {
   const [params] = useSearchParams();
 
   const redirect = decodeURIComponent(params.get("redirect") || "/");
-  const { setUser } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const { data: authData } = useAuth();
+
+  useEffect(() => {
+    if (authData?.user) {
+      navigate(redirect);
+    }
+  }, [authData, navigate, redirect]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -111,7 +118,7 @@ const Login = () => {
       </div>
 
       <div className="flex flex-col items-center text-gray-400">
-        <p>By clicking continue, you are agree to our</p>
+        <p>By clicking continue, you agree to our</p>
         <p>
           <span className="underline underline-offset-4">Terms of Service</span>{" "}
           and{" "}

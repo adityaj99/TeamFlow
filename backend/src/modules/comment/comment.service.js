@@ -30,7 +30,7 @@ export const createCommentService = async (userId, orgId, data) => {
   return comment;
 };
 
-export const getCommentsService = async (taskId) => {
+export const getCommentsService = async (taskId, orgId) => {
   const comments = await Comment.find({
     task: taskId,
     organization: orgId,
@@ -41,7 +41,7 @@ export const getCommentsService = async (taskId) => {
   return comments;
 };
 
-export const getRepliesService = async (commentId) => {
+export const getRepliesService = async (commentId, orgId) => {
   const replies = await Comment.find({
     parentComment: commentId,
     organization: orgId,

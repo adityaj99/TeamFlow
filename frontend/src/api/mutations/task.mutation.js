@@ -27,9 +27,18 @@ export const useUpdateTaskStatus = () => {
       await queryClient.cancelQueries(["tasks"]);
       const prevTasks = queryClient.getQueryData(["tasks"]);
 
-      queryClient.setQueryData(["tasks"], (old) =>
-        old?.map((task) => (task._id === id ? { ...task, ...data } : task)),
-      );
+      queryClient.setQueryData(["tasks"], (old) => {
+        if (!old || !old.data) {
+          return old;
+        }
+
+        return {
+          ...old,
+          data: old.data.map((task) =>
+            task._id === id ? { ...task, ...data } : task,
+          ),
+        };
+      });
 
       return { prevTasks };
     },

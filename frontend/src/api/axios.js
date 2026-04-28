@@ -7,7 +7,6 @@ export const setQueryClient = (qc) => {
   queryClient = qc;
 };
 
-// https://teamflow-backend-larw.onrender.com
 const api = axios.create({
   baseURL: "http://localhost:5000",
   withCredentials: true,
@@ -22,13 +21,16 @@ api.interceptors.response.use(
     if (
       status === 401 &&
       !isRedirecting &&
-      !window.location.pathname.includes("/login")
+      !window.location.pathname.includes("/login") &&
+      !window.location.pathname.includes("/register")
     ) {
       isRedirecting = true;
       if (queryClient) {
         queryClient.clear();
       }
-      window.location.href = "/login";
+
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
     }
     return Promise.reject(error);
   },

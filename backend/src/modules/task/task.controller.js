@@ -32,8 +32,6 @@ export const createTask = async (req, res, next) => {
 
 export const getTasks = async (req, res, next) => {
   try {
-    console.log("Get Tasks Query:", req.query);
-
     const result = await getTasksService(req.orgId, req.query);
     res.json({
       success: true,
@@ -41,7 +39,6 @@ export const getTasks = async (req, res, next) => {
       pagination: result.pagination,
     });
   } catch (error) {
-    console.error("Error fetching tasks:", error);
     next(error);
   }
 };
@@ -85,7 +82,6 @@ export const updateTask = async (req, res, next) => {
       .status(200)
       .json({ success: true, message: "Task updated", data: task });
   } catch (error) {
-    console.error("Error updating task:", error);
     next(error);
   }
 };

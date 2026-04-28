@@ -1,22 +1,18 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api/axios";
 import { AudioWaveform } from "lucide-react";
+import { toast } from "sonner";
+import { useSelectOrg } from "../api/mutations/org.mutation";
 
 const AcceptInvite = () => {
   const [params] = useSearchParams();
   const token = params.get("token");
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  //   useEffect(() => {
-  //     if (!user && token) {
-  //       navigate(
-  //         `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
-  //       );
-  //     }
-  //   }, [user, token, navigate]);
+  const { mutate: selectOrg, isPending: isSelecting } = useSelectOrg();
 
-  // 🔥 1. Fetch invite details
   const { data, isLoading, isError } = useQuery({
     queryKey: ["invite", token],
     queryFn: async () => {
@@ -26,18 +22,31 @@ const AcceptInvite = () => {
     enabled: !!token,
   });
 
-  console.log(data.data.orgName);
-
-  // 🔥 2. Accept invite
   const { mutate, isPending, isSuccess } = useMutation({
     mutationFn: () => api.post("/api/invite/accept", { token }),
 
-    onSuccess: () => {
-      navigate("/"); // redirect to dashboard
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["orgs"] });
+
+      const newOrgId = res.data?.data?.orgId;
+
+      if (newOrgId) {
+        selectOrg(newOrgId, {
+          onSuccess: () => {
+            toast.success("Successfully joined and switched workspace!");
+            navigate("/");
+          },
+        });
+      } else {
+        toast.success("Successfully joined the workspace!");
+        navigate("/");
+      }
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to join workspace");
     },
   });
 
-  // 🔴 No token case
   if (!token) {
     return <p className="text-center mt-10">Invalid invite link</p>;
   }
@@ -67,18 +76,19 @@ const AcceptInvite = () => {
         <p className="text-[16px] font-semibold">Team Flow.</p>
       </div>
       <div>
-        <div className="bg-white p-6 rounded shadow w-[450px] space-y-2">
+        <div className="bg-white p-6 rounded shadow w-md space-y-2">
           <h1 className="text-xl font-semibold text-center">
             Hey there! You're invited to join a TeamFlow Workspace!
           </h1>
 
           <p className="text-center text-gray-400 text-sm">
             You are invited in{" "}
-            <span className="capitalize">{data?.data.orgName}</span>
+            <span className="capitalize">{data?.data?.orgName}</span>
           </p>
 
           <button
             onClick={() => mutate()}
+            disabled={isPending || isSelecting || isSuccess}
             className="w-full bg-black text-white py-2 rounded cursor-pointer hover:opacity-90 transition"
           >
             {isPending ? "Joining..." : isSuccess ? "Joined" : "Accept Invite"}

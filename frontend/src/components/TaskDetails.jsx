@@ -1,11 +1,10 @@
 import dateFormat from "../utils/dateFormat";
+import { getAvatar } from "../utils/getAvatar";
 
 const TaskDetails = ({ task }) => {
-  console.log(task);
-
   return (
     <div className="space-y-6">
-      {/* 🔥 TITLE + DESCRIPTION */}
+      {/* TITLE + DESCRIPTION */}
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-900">{task.title}</h2>
 
@@ -14,7 +13,7 @@ const TaskDetails = ({ task }) => {
         </p>
       </div>
 
-      {/* 🔥 META CARDS */}
+      {/* META CARDS */}
       <div className="grid grid-cols-2 gap-4">
         {/* Assigned */}
         <div className="p-3 border border-gray-200 rounded-lg bg-white">
@@ -22,7 +21,7 @@ const TaskDetails = ({ task }) => {
           <div className="flex items-center gap-2">
             <img
               className="w-6 h-6 rounded-full object-cover"
-              src={task.assignedTo?.avatar}
+              src={getAvatar(task.assignedTo)}
               alt=""
             />
             <p className="text-sm font-medium">
@@ -78,7 +77,7 @@ const TaskDetails = ({ task }) => {
         </div>
       </div>
 
-      {/* 🔥 SUBMISSION CARD */}
+      {/* SUBMISSION CARD */}
       {task.submission && (
         <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 space-y-2">
           <p className="text-sm font-semibold text-gray-700">Submission</p>
@@ -94,9 +93,11 @@ const TaskDetails = ({ task }) => {
                   key={i}
                   href={file}
                   target="_blank"
-                  className="text-xs text-blue-500 underline"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-500 cursor-pointer"
                 >
-                  Attachment {i + 1}
+                  <span className="text-black decoration-0">{i + 1}.</span>{" "}
+                  Attachment
                 </a>
               ))}
             </div>
@@ -104,14 +105,14 @@ const TaskDetails = ({ task }) => {
         </div>
       )}
 
-      {/* 🔥 FOOTER */}
+      {/* FOOTER */}
       <div className="flex justify-between text-xs text-gray-400">
         <div className="flex items-center gap-2">
           <span>Created by</span>
           <div className="flex items-center gap-1">
             <img
               className="h-7 w-7 rounded-full object-cover"
-              src={task.createdBy.avatar}
+              src={getAvatar(task.createdBy)}
               alt=""
             />
             <p>{task.createdBy.name || "Unknown"}</p>

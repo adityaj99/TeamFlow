@@ -1,4 +1,5 @@
 import Membership from "./membership.model.js";
+import Organization from "../organization/org.model.js";
 import Task from "../task/task.model.js";
 import { createAuditLog } from "../audit/audit.service.js";
 

@@ -2,7 +2,7 @@ import React from "react";
 import dateFormat from "../../utils/dateFormat";
 import { getAvatar } from "../../utils/getAvatar";
 
-const ProjectList = ({ projects = [], isLoading }) => {
+const ProjectList = ({ projects = [], isLoading, canCreate }) => {
   if (isLoading)
     return (
       <div className="flex flex-col gap-2 mt-4">
@@ -49,7 +49,7 @@ const ProjectList = ({ projects = [], isLoading }) => {
       ) : (
         <div className="flex flex-col items-center justify-center text-gray-400 p-6">
           <p>There is no project yet.</p>
-          <p>Please create for workspace.</p>
+          {canCreate && <p>Please create for workspace.</p>}
         </div>
       )}
     </div>

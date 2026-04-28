@@ -58,6 +58,7 @@ export const deleteProject = async (req, res, next) => {
       message: "Project deleted",
     });
   } catch (error) {
+    console.log("Project Error", error);
     next(error);
   }
 };

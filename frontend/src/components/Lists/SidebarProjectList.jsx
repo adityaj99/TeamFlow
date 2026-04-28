@@ -13,6 +13,7 @@ import { useModal } from "../../context/ModalContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import DeleteProjectModal from "../DeleteProjectModal";
+import { useAuth } from "../../api/queries/auth.query";
 
 const SidebarProjectsList = () => {
   const { openModal } = useModal();
@@ -33,6 +34,11 @@ const SidebarProjectsList = () => {
   const [open, setOpen] = useState("");
 
   const projects = data?.pages.flatMap((page) => page.data) || [];
+
+  const { data: userData } = useAuth();
+  const canManageProjects = ["owner", "admin", "manager"].includes(
+    userData?.membership?.role,
+  );
 
   useEffect(() => {
     const trigger = document.getElementById("load-more-trigger");
@@ -88,11 +94,13 @@ const SidebarProjectsList = () => {
       {/* Header */}
       <div className="flex items-center justify-between text-gray-400">
         <p className="text-xs">Projects</p>
-        <CirclePlus
-          className="cursor-pointer"
-          size={16}
-          onClick={() => openModal(<CreateProjectForm />)}
-        />
+        {canManageProjects && (
+          <CirclePlus
+            className="cursor-pointer hover:text-gray-600 transition-colors"
+            size={16}
+            onClick={() => openModal(<CreateProjectForm />)}
+          />
+        )}
       </div>
 
       {/* Scroll container */}
@@ -103,7 +111,7 @@ const SidebarProjectsList = () => {
           projects.map((project) => (
             <div
               key={project._id}
-              className={`flex items-center justify-between hover:bg-gray-100 ${currentOpenProject === project?._id ? "bg-gray-100" : ""} `}
+              className={`flex items-center justify-between rounded-xl hover:bg-gray-100 ${currentOpenProject === project?._id ? "bg-gray-100" : ""} `}
             >
               <div
                 onClick={() => navigate(`/project/${project?._id}`)}
@@ -122,7 +130,7 @@ const SidebarProjectsList = () => {
               </div>
 
               <div
-                className="relative"
+                className="relative pr-1"
                 ref={open === project._id ? menuRef : null}
               >
                 <button
@@ -147,15 +155,18 @@ const SidebarProjectsList = () => {
                       <Folder size={14} />
                       View Project
                     </button>
-                    <button
-                      onClick={() =>
-                        openModal(<DeleteProjectModal project={project} />)
-                      }
-                      className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-gray-100"
-                    >
-                      <Trash2 size={14} />
-                      Delete Project
-                    </button>
+                    {canManageProjects && (
+                      <button
+                        onClick={() => {
+                          setOpen("");
+                          openModal(<DeleteProjectModal project={project} />);
+                        }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                        Delete Project
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -163,17 +174,27 @@ const SidebarProjectsList = () => {
           ))
         ) : (
           <div className="px-2">
-            <p className="text-gray-400 text-xs">
-              There is no project in this Workspace yet. Project you create will
-              show up here.
-            </p>
-            <div className="flex items-center gap-1">
-              <p className="font-bold text-xs underline underline-offset-4">
-                {" "}
-                Create a project
+            {canManageProjects ? (
+              <>
+                <p className="text-gray-400 text-xs">
+                  There is no project in this Workspace yet. Projects you create
+                  will show up here.
+                </p>
+                <div
+                  className="flex items-center gap-1 mt-2 cursor-pointer hover:text-gray-600 transition-colors"
+                  onClick={() => openModal(<CreateProjectForm />)} // 👈 7. Added click handler!
+                >
+                  <p className="font-bold text-xs underline underline-offset-4">
+                    Create a project
+                  </p>
+                  <ArrowRight size={14} />
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-400 text-xs">
+                No projects have been assigned to this Workspace yet.
               </p>
-              <ArrowRight size={16} />
-            </div>
+            )}
           </div>
         )}
         {/* 🔥 trigger */}

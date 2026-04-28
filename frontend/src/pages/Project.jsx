@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import { useStats } from "../api/queries/stats.query";
 import { useProject } from "../api/queries/project.query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActivityTimeline from "../components/ActivityTimeline";
+import { useAuth } from "../api/queries/auth.query";
 
 const Project = () => {
   const { projectId } = useParams();
@@ -23,6 +24,9 @@ const Project = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState("tasks");
+  const [localSearch, setLocalSearch] = useState(
+    searchParams.get("search") || "",
+  );
 
   const filters = {
     search: searchParams.get("search") || "",
@@ -37,8 +41,6 @@ const Project = () => {
       ...filters,
       ...newValues,
     };
-
-    console.log(updated);
 
     // remove empty values
     Object.keys(updated).forEach((key) => {
@@ -65,6 +67,21 @@ const Project = () => {
   });
 
   const { data: project, isLoading: projectLoading } = useProject(projectId);
+  const { data: userData } = useAuth();
+
+  const canCreate = ["owner", "admin", "manager"].includes(
+    userData?.membership?.role,
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.search) {
+        updateFilters({ search: localSearch, page: 1 });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localSearch]);
 
   return (
     <div className="space-y-6">
@@ -87,12 +104,14 @@ const Project = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => openModal(<CreateTaskForm projectId={projectId} />)}
-          className="bg-black text-white px-4 py-2 rounded-md"
-        >
-          + New Task
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => openModal(<CreateTaskForm projectId={projectId} />)}
+            className="bg-black text-white px-4 py-2 rounded-md"
+          >
+            + New Task
+          </button>
+        )}
       </div>
 
       {/* CARDS */}
@@ -123,13 +142,8 @@ const Project = () => {
             <input
               placeholder="Search tasks..."
               className="border px-3 py-2 rounded-md w-64 text-sm"
-              value={filters.search}
-              onChange={(e) =>
-                updateFilters({
-                  search: e.target.value,
-                  page: 1,
-                })
-              }
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
             />
 
             <div className="relative">
@@ -250,9 +264,6 @@ const Project = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="w-12 h-3 bg-gray-100 rounded" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="w-4 h-4 bg-gray-100 rounded ml-auto" />
                       </td>
                     </tr>
                   ))

@@ -19,7 +19,7 @@ export const useCreateProject = () => {
 
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate("/");
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (id) => {
