@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-const PORT = 10000;
+const PORT = process.env.PORT || 10000;
 
 server.listen(PORT, () => {
   console.log(
