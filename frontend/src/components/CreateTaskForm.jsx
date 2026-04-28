@@ -45,8 +45,8 @@ const CreateTaskForm = ({ projectId, editTask }) => {
 
     const payload = {
       ...form,
-      assignedTo: form.assignedTo ? form.assignedTo : null,
-      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
+      assignedTo: form.assignedTo ? form.assignedTo : undefined,
+      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : undefined,
     };
 
     if (isEdit) {
