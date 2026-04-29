@@ -13,25 +13,47 @@ const transitions = {
 };
 
 export const createTaskService = async (userId, orgId, data) => {
+  console.log("--- BREADCRUMB 1: Entered createTaskService ---");
+  console.log("Payload:", { userId, orgId, assignedTo: data.assignedTo });
+
   const task = await Task.create({
     ...data,
     organization: orgId,
     createdBy: userId,
   });
 
-  const membership = await Membership.findOne({
-    user: data.assignedTo,
-    organization: orgId,
-  }).lean();
+  console.log(
+    "--- BREADCRUMB 2: Task saved to MongoDB successfully ---",
+    task._id,
+  );
 
-  if (!membership) {
-    const error = new Error("User not found in this organization");
-    error.status = 404;
-    throw error;
-  }
-
+  // BUG FIX: Only check membership and send notifications if someone is actually assigned!
   if (data.assignedTo) {
+    console.log(
+      "--- BREADCRUMB 3: Checking membership for assigned user ---",
+      data.assignedTo,
+    );
+
+    const membership = await Membership.findOne({
+      user: data.assignedTo,
+      organization: orgId,
+    }).lean();
+
+    if (!membership) {
+      console.error(
+        "🔴 BREADCRUMB ERROR: Assigned user not found in this organization",
+      );
+      const error = new Error("User not found in this organization");
+      error.status = 404;
+      throw error;
+    }
+
+    console.log("--- BREADCRUMB 4: Membership verified! ---");
+
     try {
+      console.log(
+        "--- BREADCRUMB 5: Attempting to trigger notification service... ---",
+      );
       await createNotifcationService({
         userId: data.assignedTo,
         orgId,
@@ -39,11 +61,22 @@ export const createTaskService = async (userId, orgId, data) => {
         message: `You have been assigned a new task: ${task.title}`,
         relatedId: task._id,
       });
+      console.log(
+        "--- BREADCRUMB 6: Successfully added to notification queue! ---",
+      );
     } catch (error) {
-      console.error("Failed to add to queue, but task was created:", error);
+      console.error(
+        "🔴 REDIS/QUEUE ERROR: Failed to add to queue, but task was created:",
+        error.message,
+      );
     }
+  } else {
+    console.log(
+      "--- BREADCRUMB 3: No user assigned. Skipping membership check and notifications. ---",
+    );
   }
 
+  console.log("--- BREADCRUMB 7: Exiting service and returning task ---");
   return task;
 };
 
