@@ -31,13 +31,17 @@ export const createTaskService = async (userId, orgId, data) => {
   }
 
   if (data.assignedTo) {
-    await createNotifcationService({
-      userId: data.assignedTo,
-      orgId,
-      type: "TASK_ASSIGNED",
-      message: `You have been assigned a new task: ${task.title}`,
-      relatedId: task._id,
-    });
+    try {
+      await createNotifcationService({
+        userId: data.assignedTo,
+        orgId,
+        type: "TASK_ASSIGNED",
+        message: `You have been assigned a new task: ${task.title}`,
+        relatedId: task._id,
+      });
+    } catch (error) {
+      console.error("Failed to add to queue, but task was created:", error);
+    }
   }
 
   return task;

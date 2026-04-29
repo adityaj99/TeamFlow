@@ -49,7 +49,7 @@ const Dashboard = () => {
   const members = data?.data || [];
 
   const { data: orgList = [] } = useOrgs();
-  const hasOrgs = orgList.length > 0;
+  const hasOrgs = orgList?.length > 0;
 
   const noOrg =
     statsError?.response?.status === 400 ||
