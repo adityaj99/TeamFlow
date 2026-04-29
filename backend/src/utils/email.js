@@ -12,10 +12,20 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    html,
-  });
+  try {
+    console.log(`Attempting to send email to: ${to}`);
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      html,
+    });
+    console.log(
+      "✅ Email successfully accepted by Google! Message ID:",
+      info.messageId,
+    );
+  } catch (error) {
+    console.error("🔴 Nodemailer failed to send email:", error);
+    throw error;
+  }
 };
