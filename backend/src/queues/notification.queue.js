@@ -3,6 +3,21 @@ import redisConnection from "../config/redis.js";
 
 const notificationQueue = new Queue("notificationQueue", {
   connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: "exponential",
+      delay: 5000,
+    },
+
+    removeOnComplete: {
+      age: 3600,
+      count: 500,
+    },
+    removeOnFail: {
+      age: 24 * 3600,
+    },
+  },
 });
 
 export default notificationQueue;
