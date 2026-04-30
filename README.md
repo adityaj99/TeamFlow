@@ -142,4 +142,4 @@ npm run dev:worker
 
 **Aditya Jadhav**
 
-[![GitHub Profile](https://img.shields.io/badge/GitHub-aditya99-black?logo=github)](https://github.com/adityaj99/TeamFlow)
+[![GitHub Profile](https://img.shields.io/badge/GitHub-aditya99-black?logo=github)](https://github.com/adityaj99/)
